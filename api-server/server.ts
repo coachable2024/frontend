@@ -24,7 +24,7 @@ app.get('/health', (req: Request, res: Response) => {
 // Chat endpoint
 app.post('/api/chat', async (req: Request, res: Response) => {
   try {
-    const { messages, coachPersonality, coachName } = req.body;
+    const { messages, coachPersonality, coachName, coachImage } = req.body;
 
     if (!messages || !coachPersonality || !coachName) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -44,7 +44,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       throw new Error('Invalid response from OpenAI');
     }
 
-    return res.status(200).json({ message: completion.choices[0].message.content });
+    return res.status(200).json({ 
+      message: completion.choices[0].message.content,
+      coachImage: coachImage
+    });
   } catch (error) {
     console.error('API Error:', error);
     return res.status(500).json({ message: 'Error processing your request' });
