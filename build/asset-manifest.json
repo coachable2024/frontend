@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/coachable-app/static/css/main.5c94fd39.css",
+    "main.js": "/coachable-app/static/js/main.65208cde.js",
+    "index.html": "/coachable-app/index.html",
+    "main.5c94fd39.css.map": "/coachable-app/static/css/main.5c94fd39.css.map",
+    "main.65208cde.js.map": "/coachable-app/static/js/main.65208cde.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5c94fd39.css",
+    "static/js/main.65208cde.js"
+  ]
+}
