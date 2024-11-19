@@ -1,7 +1,9 @@
-`cd client`
+Our project uses React/Next.js framework:
 
-`npm install`
+`cd client`- Changes directory to the client folder containing frontend code
 
-`npm run dev`
+`npm install` - Installs project dependencies listed in package.json
 
-`http://localhost:3000`
+`npm run dev` - Starts the development server
+
+`http://localhost:3000` - The local URL where you can view your running application
