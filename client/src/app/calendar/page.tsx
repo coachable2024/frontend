@@ -1,13 +1,18 @@
 'use client';
-import CalendarPage from '../../pages/Calendar';
-import { PageWrapper } from '@/components/layout/PageWrapper';
-import { PageHeader } from '@/components/layout/PageHeader';
 
-export default function CalendarPageOutput() {
+import { PageHeader } from '@/components/layout/PageHeader';
+import Calendar from '@/components/features/calendar/Calendar';
+
+export default function CalendarPage() {
   return (
-    <PageWrapper>
+    <div className="p-6">
       <PageHeader title="Calendar" />
-      {<CalendarPage/>}
-    </PageWrapper>
+      <Calendar 
+        events={[]}
+        onEventAdd={(event) => console.log('Add event:', event)}
+        onEventClick={(event) => console.log('Click event:', event)}
+        onCalendarSync={(type) => console.log(`Sync with ${type}`)}
+      />
+    </div>
   );
 }

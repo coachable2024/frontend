@@ -1,8 +1,8 @@
 export interface OnboardingState {
   currentStep: number;
-  selectedGoalType: string | null;
   selectedCoach: Coach | null;
-  initialGoal: {
+  selectedGoalType?: string;
+  initialGoal?: {
     title: string;
     description: string;
     targetDate: Date | null;
