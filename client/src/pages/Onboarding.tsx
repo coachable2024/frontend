@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OnboardingState, Coach } from '../types/onboarding';
+import { OnboardingState, Coach } from '../types/onboardingType';
 import WelcomeStep from '../components/onboarding/WelcomeStep';
 import CoachSelectionStep from '../components/onboarding/CoachSelectionStep';
 import GoalDetailsStep from '../components/onboarding/GoalDetailsStep';

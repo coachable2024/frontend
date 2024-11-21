@@ -1,6 +1,20 @@
+# OS generated files
+.DS_Store
+*/.DS_Store
+
+# Node modules
 node_modules
+
+# Environment variables
 .env
+
+# Dist folder
 dist
 .vercel
 .env.local
 .env.production
+
+# Next.js build output
+.next/
+**/.next/**
+.vercel

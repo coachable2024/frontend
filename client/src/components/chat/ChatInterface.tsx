@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Coach } from '../../types/onboarding';
+import { Coach } from '../../types/onboardingType';
 
 interface ChatInterfaceProps {
   coach: Coach;
