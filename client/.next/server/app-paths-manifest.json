@@ -2,8 +2,8 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/calendar/page": "app/calendar/page.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/(auth)/onboarding/page": "app/(auth)/onboarding/page.js",
   "/goals/page": "app/goals/page.js",
-  "/tasks/page": "app/tasks/page.js",
   "/page": "app/page.js",
-  "/(auth)/onboarding/page": "app/(auth)/onboarding/page.js"
+  "/tasks/page": "app/tasks/page.js"
 }

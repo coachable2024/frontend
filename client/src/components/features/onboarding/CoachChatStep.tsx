@@ -64,12 +64,16 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-answer-structured-output/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-answer-structured-output`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
         },
+        credentials: 'include',
+        mode: 'cors',
         body: JSON.stringify({
           question: userMessage,
           messages: messages,
