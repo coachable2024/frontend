@@ -15,6 +15,17 @@ interface Message {
   content: string;
 }
 
+const formatTime = (time: { hours: number; minutes: number }): string => {
+  const parts: string[] = [];
+  if (time.hours > 0) {
+    parts.push(`${time.hours}h`);
+  }
+  if (time.minutes > 0) {
+    parts.push(`${time.minutes}m`);
+  }
+  return parts.join(' ');
+};
+
 const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, onGoalSet }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -53,37 +64,66 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-answer-structured-output/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          messages: [...messages, { role: 'user', content: userMessage }],
+          question: userMessage,
+          messages: messages,
           coachPersonality: coach.personality,
-          coachName: coach.name,
-          detectGoal: true
+          coachName: coach.name
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       
-      if (data.definedGoal) {
-        setProposedGoal(data.definedGoal);
-        const goalProposal = formatGoalProposal(data.definedGoal);
+      if (data.answer && data.answer.description) {
+        // Convert FastAPI response format to your app's format
+        const goalData = {
+          title: data.answer.description,
+          why: "Generated from your goal",
+          actions: data.answer.tasks.map((task: any) => ({
+            name: task.description,
+            time: { hours: 1, minutes: 0 }, // You might want to calculate this from task dates
+            completed: task.status === "COMPLETED"
+          })),
+          reward: "Achievement of your goal"
+        };
+        
+        setProposedGoal(goalData);
+        const goalProposal = formatGoalProposal(goalData);
         setMessages(prev => [...prev, { 
           role: 'assistant', 
           content: goalProposal
         }]);
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: data.answer || "I couldn't understand the goal. Could you please rephrase it?" 
+        }]);
       }
     } catch (error) {
       console.error('Error:', error);
+      const errorMessage = await error.response?.text();
+      let debugMessage = '';
+      
+      try {
+        const errorData = JSON.parse(errorMessage);
+        debugMessage = errorData.debug || error.message || 'Unknown error';
+      } catch {
+        debugMessage = error.message || 'Unknown error';
+      }
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "I'm sorry, I'm having trouble responding right now. Please try again." 
+        content: `I'm sorry, I'm having trouble responding right now. Error: ${debugMessage}` 
       }]);
     } finally {
       setIsLoading(false);

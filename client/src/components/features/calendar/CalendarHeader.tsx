@@ -8,13 +8,13 @@ interface CalendarHeaderProps {
     view: CalendarView;
   }
   
-  export function CalendarHeader({
+  export const CalendarHeader = ({
     currentDate,
     onPrevious,
     onNext,
     onToday,
     view,
-  }: CalendarHeaderProps) {
+  }: CalendarHeaderProps) => {
     const formatDate = () => {
       const options: Intl.DateTimeFormatOptions = {
         month: 'long',
