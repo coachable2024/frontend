@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { Coach } from '../../../types/onboarding';
 import { Goal } from '../../../types/goal';
 
@@ -11,11 +10,16 @@ interface CoachChatStepProps {
 }
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-const formatTime = (time: { hours: number; minutes: number }): string => {
+interface Time {
+  hours: number;
+  minutes: number;
+}
+
+const formatTime = (time: Time): string => {
   const parts: string[] = [];
   if (time.hours > 0) {
     parts.push(`${time.hours}h`);
@@ -64,21 +68,18 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-answer-structured-output`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/goal_setting_chat/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
         },
         credentials: 'include',
         mode: 'cors',
         body: JSON.stringify({
-          question: userMessage,
-          messages: messages,
-          coachPersonality: coach.personality,
-          coachName: coach.name
+          user_input: userMessage,
+          coach_name: coach.name,
+          history: messages,
         }),
       });
 
@@ -87,47 +88,13 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
       }
 
       const data = await response.json();
+      setMessages(data.history);
       
-      if (data.answer && data.answer.description) {
-        // Convert FastAPI response format to your app's format
-        const goalData = {
-          title: data.answer.description,
-          why: "Generated from your goal",
-          actions: data.answer.tasks.map((task: any) => ({
-            name: task.description,
-            time: { hours: 1, minutes: 0 }, // You might want to calculate this from task dates
-            completed: task.status === "COMPLETED"
-          })),
-          reward: "Achievement of your goal"
-        };
-        
-        setProposedGoal(goalData);
-        const goalProposal = formatGoalProposal(goalData);
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: goalProposal
-        }]);
-      } else {
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: data.answer || "I couldn't understand the goal. Could you please rephrase it?" 
-        }]);
-      }
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage = await error.response?.text();
-      let debugMessage = '';
-      
-      try {
-        const errorData = JSON.parse(errorMessage);
-        debugMessage = errorData.debug || error.message || 'Unknown error';
-      } catch {
-        debugMessage = error.message || 'Unknown error';
-      }
-      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `I'm sorry, I'm having trouble responding right now. Error: ${debugMessage}` 
+        content: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." 
       }]);
     } finally {
       setIsLoading(false);
@@ -147,32 +114,34 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}
-          >
-            {message.role === 'assistant' && (
-              <img 
-                src={coach.profileImage}
-                alt={coach.name}
-                className="w-8 h-8 rounded-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${coach.name}`;
-                }}
-              />
-            )}
+        {messages
+          .filter(message => message.role !== 'system')
+          .map((message, index) => (
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-gray-100 text-gray-800 rounded-bl-none'
-              }`}
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}
             >
-              {message.content}
+              {message.role === 'assistant' && (
+                <img 
+                  src={coach.profileImage}
+                  alt={coach.name}
+                  className="w-8 h-8 rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${coach.name}`;
+                  }}
+                />
+              )}
+              <div
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  message.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                }`}
+              >
+                {message.content}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         {isLoading && (
           <div className="flex justify-start items-end gap-2">
             <img 
@@ -224,4 +193,4 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
   );
 };
 
-export default CoachChatStep; 
+export default CoachChatStep;
