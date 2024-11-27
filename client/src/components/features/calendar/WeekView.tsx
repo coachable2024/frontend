@@ -1,4 +1,4 @@
-import { CalendarEvent, WeekViewProps } from './types';
+import { calendarEvent, WeekViewProps } from '@/types/calendarType';
 
 export const WeekView: React.FC<WeekViewProps> = ({ currentDate, events, onEventClick }) => {
   // Get start of week (Sunday)

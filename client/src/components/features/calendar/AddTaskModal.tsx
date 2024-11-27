@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
-import { Task, TaskStatus, TaskPriority } from '@/types/task';
+import { Task, TaskStatus, TaskPriority } from '@/types/tasksType';
 
 interface AddTaskModalProps {
   isOpen: boolean;

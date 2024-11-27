@@ -4,8 +4,8 @@ import { useState } from 'react';
 import  Calendar  from '@/components/features/calendar/Calendar';
 import { AddTaskModal } from '@/components/features/calendar/AddTaskModal';
 import { Button } from '@/components/ui/button';
-import { Task } from '@/types/task';
-import { CalendarEvent } from '@/components/features/calendar/types';
+import { Task } from '@/types/tasksType';
+import { calendarEvent } from '@/types/calendarType';
 
 export function CalendarContent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -16,7 +16,7 @@ export function CalendarContent() {
     setTasks([...tasks, task]);
   };
 
-  const handleEventAdd = (event: CalendarEvent) => {
+  const handleEventAdd = (event: calendarEvent) => {
     const newTask: Task = {
       id: event.id,
       title: event.title,
