@@ -16,5 +16,6 @@ dist
 
 # Next.js build output
 .next/
-**/.next/**
+*/.next/*
 .vercel
+client/.next/
