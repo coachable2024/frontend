@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Calendar from '@/components/calendar/Calendar';
 import { TaskList } from '@/components/task/TaskList';
 import GoalCard from '@/components/goals/GoalCard';
-import { Task } from '@/types/task'; // Adjust import path as needed
-import { Event as CalendarEvent } from '@/components/calendar/types';  // Add this import
+import { Task } from '@/types/tasksType'; // Adjust import path as needed
+import { calendarEvent as CalendarEvent } from '@/types/calendarType';  // Add this import
 
 const Dashboard = () => {
 // app/dashboard/page.tsx
@@ -53,7 +53,7 @@ const [events, setEvents] = useState<CalendarEvent[]>([]);
           {/* Goal Card Section */}
           <div className="bg-white rounded-lg shadow">
             <GoalCard 
-              why="Your motivation here"
+              motivation ="Your motivation here"
               actions={[{
                 name: "Action 1",
                 time: {hours: 10, minutes: 0},
@@ -79,7 +79,7 @@ const [events, setEvents] = useState<CalendarEvent[]>([]);
           <div className="bg-white rounded-lg shadow p-4">
             <h2 className="text-xl font-semibold mb-4">Calendar</h2>
             <Calendar
-              events={events}
+              calendarEvents={events}
               onEventAdd={handleEventAdd}
               onEventClick={handleEventClick}
               onCalendarSync={(type) => console.log(`Sync with ${type}`)}

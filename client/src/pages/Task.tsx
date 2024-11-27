@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Task, TaskStatus } from '@/types/tasksType';
 import { TaskCard } from '@/components/task/TaskCard';
 import { TaskForm } from '@/components/task/TaskForm';
-import { taskService } from '@/services/tasks';
+import { taskService } from '@/services';
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

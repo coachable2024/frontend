@@ -1,23 +1,25 @@
-// types/goals/goals.ts
+// types/goalsType.ts
+import { Task } from './tasksType';
 
 // Define the possible status values for a goal
 export type GoalStatus = 'not-started' | 'in-progress' | 'completed' | 'cancelled';
 
-// Define the possible priority levels
-export type GoalPriority = 'low' | 'medium' | 'high';
+// Define the possible categories 
+export type GoalCategory = 'health' | 'finance' | 'relationship' | 'career' | 'personal';
 
 // Define the main Goal interface
 export interface Goal {
   id: string;
   title: string;
-  description: string;
+  motivation: string;
   status: GoalStatus;
-  priority: GoalPriority;
+  category: GoalCategory;
+  relatedTasks?: Task[];
   targetDate: Date;
   createdAt: Date;
   updatedAt: Date;
+  reward: string;
   progress?: number;  // Optional progress percentage
-  category?: string;  // Optional category
   metrics?: {         // Optional metrics for tracking
     target: number;
     current: number;

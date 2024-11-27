@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ViewSelector } from './ViewSelector';
 import { CalendarHeader } from './CalendarHeader';
 import { WeekView } from './WeekView';
-import { CalendarView, calendarEvent } from './types';
+import { CalendarView, calendarEvent } from '../../types/calendarType';
 
 interface CalendarProps {
   calendarEvents: Event[];

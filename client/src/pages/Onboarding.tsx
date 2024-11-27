@@ -8,6 +8,7 @@ import SuccessStep from '../components/onboarding/SuccessStep';
 import ProgressBar from '../components/common/ProgressBar';
 import CoachChatStep from '../components/onboarding/CoachChatStep';
 
+
 const Onboarding: React.FC = () => {
   console.log('Rendering Onboarding component');
   const [onboardingState, setOnboardingState] = useState<OnboardingState>({

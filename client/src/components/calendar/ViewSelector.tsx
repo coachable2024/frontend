@@ -1,4 +1,4 @@
-import { CalendarView } from './types';
+import { CalendarView } from '../../types/calendarType';
 
 interface ViewSelectorProps {
   currentView: CalendarView;
