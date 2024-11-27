@@ -1,4 +1,4 @@
-// File: /Users/racwei37/Documents/learn_git_new/frontend/client/src/app/layout.tsx
+// File: /Users/xiangli/Desktop/coachable-app/client/src/app/layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

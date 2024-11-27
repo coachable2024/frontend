@@ -1,25 +1,37 @@
 import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
+import { Task, TaskStatus, TaskPriority } from '@/types/task';
 
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedDate: Date;
-  onAddTask: (task: { title: string; date: Date; description: string }) => void;
+  onAddTask: (task: Task) => void;
 }
 
-export function AddTaskModal({ isOpen, onClose, selectedDate, onAddTask }: AddTaskModalProps) {
+export const AddTaskModal: React.FC<AddTaskModalProps> = ({
+  isOpen,
+  onClose,
+  selectedDate,
+  onAddTask,
+}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddTask({
+    const newTask: Task = {
+      id: crypto.randomUUID(),
       title,
-      date: selectedDate,
-      description
-    });
+      description,
+      dueDate: selectedDate,
+      priority: 'medium' as TaskPriority,
+      status: 'todo' as TaskStatus,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    onAddTask(newTask);
     setTitle('');
     setDescription('');
     onClose();

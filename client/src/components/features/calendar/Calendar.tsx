@@ -1,15 +1,8 @@
 import { useState } from 'react';
+import { CalendarEvent, CalendarProps, CalendarView } from './types';
+import { WeekView } from './WeekView';
 import { ViewSelector } from './ViewSelector';
 import { CalendarHeader } from './CalendarHeader';
-import { WeekView } from './WeekView';
-import { CalendarView, Event } from './types';
-
-interface CalendarProps {
-  events: Event[];
-  onEventAdd: (event: Omit<Event, 'id'>) => void;
-  onEventClick: (event: Event) => void;
-  onCalendarSync?: (type: 'google' | 'outlook') => void;
-}
 
 export default function Calendar({
   events,

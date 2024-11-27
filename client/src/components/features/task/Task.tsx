@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { Task, TaskStatus } from '@/types/task';
-import { TaskCard } from '@/components/task/TaskCard';
-import { TaskForm } from '@/components/task/TaskForm';
+import { TaskCard } from '@/components/features/task/TaskCard';
+import { TaskForm } from '@/components/features/task/TaskForm';
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

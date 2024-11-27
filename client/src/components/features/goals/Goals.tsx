@@ -1,8 +1,8 @@
 // export default GoalsPage;
 
 import React from 'react';
-import GoalCard from '@/components/goals/GoalCard';
-import GoodbyeCard from '@/components/goals/GoodbyeCard';
+import GoalCard from '@/components/features/goals/GoalCard';
+import GoodbyeCard from '@/components/features/goals/GoodbyeCard';
 
 // Types can be moved to a separate types file if desired
 interface TimeRequirement {

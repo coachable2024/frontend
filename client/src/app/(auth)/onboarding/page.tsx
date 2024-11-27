@@ -9,11 +9,10 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const onboardingComplete = localStorage.getItem('onboardingComplete');
-    const selectedCoach = localStorage.getItem('selectedCoach');
-    if (onboardingComplete && selectedCoach) {
+    if (onboardingComplete) {
       router.push('/dashboard');
     }
   }, [router]);
 
   return <Onboarding />;
-} 
+}
