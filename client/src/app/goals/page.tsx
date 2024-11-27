@@ -1,24 +1,25 @@
 'use client';
-<<<<<<< HEAD
-import Goals from '../../pages/Goals';
-import { PageWrapper } from '@/components/layout/PageWrapper';
-=======
-import Goals from '@/components/features/goals/Goals';
->>>>>>> c743d4388327f7530b39bd74d4582a7326165df2
+import Goals from '@/components/features/goals/GoalCard';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { GoalCategory, GoalStatus } from '@/types/goalsType';
 
 export default function GoalsPage() {
+  const exampleGoal = {
+    id: '1',
+    title: 'Example Goal',
+    motivation: 'To improve skills',
+    status: 'in-progress' as GoalStatus, 
+    category: 'Personal Development' as GoalCategory, // Added category
+    targetDate: new Date('2023-12-31'), // Added targetDate
+    createdAt: new Date(), // Added createdAt
+    updatedAt: new Date(), // Added updatedAt
+    reward: 'A new book', // Added reward
+  };
+
   return (
-<<<<<<< HEAD
-    <PageWrapper>
-      <PageHeader title="Goals" />
-      {<Goals />}
-    </PageWrapper>
-=======
     <>
       <PageHeader title="Goals" />
-      <Goals />
+      <Goals goal={exampleGoal} />
     </>
->>>>>>> c743d4388327f7530b39bd74d4582a7326165df2
   );
 }

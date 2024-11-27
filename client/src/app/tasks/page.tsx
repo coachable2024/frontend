@@ -1,27 +1,9 @@
 'use client';
-<<<<<<< HEAD
-import Tasks from '../../pages/Task';
-
-// export default function TasksPage() {
-//   return <Tasks/>;
-// }
-
-
-import { PageWrapper } from '@/components/layout/PageWrapper';
-import { PageHeader } from '@/components/layout/PageHeader';
-
-export default function TasksPage() {
-  return (
-    <PageWrapper>
-      <PageHeader title="Tasks" />
-      {<Tasks />}
-    </PageWrapper>
-=======
 
 import { useState } from 'react';
 import { TaskList } from '@/components/features/task/TaskList';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Task } from '@/types/task';
+import { Task } from '@/types/tasksType';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([
@@ -50,6 +32,5 @@ export default function TasksPage() {
         itemsPerPage={5}
       />
     </div>
->>>>>>> c743d4388327f7530b39bd74d4582a7326165df2
   );
 }

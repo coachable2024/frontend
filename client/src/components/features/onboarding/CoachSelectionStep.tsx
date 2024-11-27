@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-<<<<<<< HEAD:client/src/components/onboarding/CoachSelectionStep.tsx
-import { Coach } from '../../types/onboardingType';
-=======
-import { Coach } from '../../../types/onboarding';
->>>>>>> c743d4388327f7530b39bd74d4582a7326165df2:client/src/components/features/onboarding/CoachSelectionStep.tsx
+import { Coach } from '@/types/onboardingType';
 
 interface CoachSelectionStepProps {
   onNext: () => void;
