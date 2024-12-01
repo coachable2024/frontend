@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Task, TaskStatus } from '@/types/tasksType';
 
-const API_BASE_URL = 'http://localhost:8000/api'; // FastAPI runs on 8000 by default
+const API_BASE_URL = 'http://localhost:8000/api/tasks'; // FastAPI runs on 8000 by default
 
 
 export const taskService = {

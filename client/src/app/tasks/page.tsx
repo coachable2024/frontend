@@ -1,60 +1,3 @@
-// 'use client';
-
-// import { useState } from 'react';
-// import { TaskList } from '@/components/features/task/TaskList';
-// import { PageHeader } from '@/components/layout/PageHeader';
-// import { Task } from '@/types/tasksType';
-
-// export default function TasksPage() {
-//   const [tasks, setTasks] = useState<Task[]>([
-//     {
-//       id: '1',
-//       title: 'Complete Project Proposal',
-//       description: 'Draft and submit project proposal',
-//       dueDate: new Date('2024-11-20'),
-//       priority: 'high',
-//       status: 'in-progress',
-//       createdAt: new Date(),
-//       updatedAt: new Date()
-//     }
-//   ]);
-
-//   const handleTaskClick = (task: Task) => {
-//     console.log('Task clicked:', task);
-//   };
-
-//   return (
-//     <div className="p-6">
-//       <PageHeader title="Tasks" />
-//       <TaskList 
-//         tasks={tasks}
-//         onTaskClick={handleTaskClick}
-//         itemsPerPage={5}
-//       />
-//     </div>
-//   );
-// }
-
-// app/tasks/page.tsx
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -63,12 +6,18 @@ import { TaskCard } from '@/components/features/task/TaskCard';
 import { TaskForm } from '@/components/features/task/TaskForm';
 import { taskService } from '@/services';
 
-const TasksPage = () => {
+
+interface TasksPageProps {
+  isMainExpanded?: boolean;  
+}
+
+const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [filter, setFilter] = useState<TaskStatus | 'all'>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
+  const [relationFilter, setRelationFilter] = useState<'all' | 'related' | 'independent'>('all');
 
   useEffect(() => {
     loadTasks();
@@ -126,9 +75,12 @@ const TasksPage = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(task =>
-    filter === 'all' ? true : task.status === filter
-  );
+  const filteredTasks = tasks.filter(task => {
+    const statusMatch = statusFilter === 'all' ? true : task.status === statusFilter;
+    const relationMatch = relationFilter === 'all' ? true : 
+      relationFilter === 'related' ? task.relatedToGoal : !task.relatedToGoal;
+    return statusMatch && relationMatch;
+  });
 
   if (isLoading) {
     return <div className="text-center py-8">Loading tasks...</div>;
@@ -146,19 +98,34 @@ const TasksPage = () => {
         </button>
       </div>
 
-      <div className="mb-6">
-        <label className="text-sm font-medium text-gray-700 mr-2">Filter by status:</label>
+      <div className="mb-6 flex gap-4">
+        <div>
+          <label className="text-sm font-medium text-gray-700 mr-2">Status:</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as TaskStatus | 'all')}
+            className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="todo">To Do</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700 mr-2">Task Type:</label>
         <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as TaskStatus | 'all')}
+          value={relationFilter}
+          onChange={(e) => setRelationFilter(e.target.value as 'all' | 'related' | 'independent')}
           className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
-          <option value="all">All</option>
-          <option value="todo">To Do</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
+          <option value="all">All Tasks</option>
+          <option value="related">Goals Related</option>
+          <option value="independent">Independent Tasks</option>
         </select>
       </div>
+    </div>
 
       {(isFormOpen || editingTask) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -178,17 +145,21 @@ const TasksPage = () => {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredTasks.map(task => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            onStatusChange={handleStatusChange}
-            onEdit={setEditingTask}
-            onDelete={handleDeleteTask}
-          />
-        ))}
-      </div>
+        <div className={`
+          grid gap-4 auto-rows-fr
+          grid-cols-1
+          ${isMainExpanded ? 'sm:grid-cols-1 lg:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}
+        `}>
+          {filteredTasks.map(task => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onStatusChange={handleStatusChange}
+              onEdit={setEditingTask}
+              onDelete={handleDeleteTask}
+            />
+          ))}
+        </div>
 
       {filteredTasks.length === 0 && (
         <div className="text-center text-gray-500 py-8">
