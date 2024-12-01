@@ -1,4 +1,7 @@
-// types/tasks.ts
+//@/types/tasksType.ts
+
+import { Goal } from "./goalsType";
+
 export type TaskPriority = 'low' | 'medium' | 'high';
 export type TaskStatus = 'todo' | 'in-progress' | 'completed';
 
@@ -9,6 +12,8 @@ export interface Task {
   dueDate: Date;
   priority: TaskPriority;
   status: TaskStatus;
+  relatedGoal?: Goal[];
+  relatedToGoal: boolean;
   duration?: number;
   category?: string;
   attachments?: string[];
