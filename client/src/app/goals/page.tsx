@@ -10,6 +10,7 @@ import { Goal, GoalStatus, GoalCategory, CreateGoalDTO} from '@/types/goalsType'
 import { Task, TaskStatus } from '@/types/tasksType';
 import AddTaskToGoal from '@/components/features/goals/AddTaskToGoal';
 import { goalService, taskService } from '@/services';
+import { TaskForm } from '@/components/features/task/TaskForm';
 
 
 interface GoalsPageProps {To
@@ -37,7 +38,8 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false); // Add this line to define the state
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isTaskEditModalOpen, setIsTaskEditModalOpen] = useState(false);
 
 
   // Mock for testing 
@@ -103,21 +105,35 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
 
   const handleTaskEdit = (goalId: string, task: Task) => {
     // Implement task edit logic
+    setEditingTask(task);
+    setIsTaskEditModalOpen(true);
     console.log('Editing task:', task);
   };
 
-  const handleTaskDelete = (goalId: string, taskId: string) => {
-    setGoals(prevGoals => {
-      return prevGoals.map(goal => {
-        if (goal.id === goalId) {
-          return {
-            ...goal,
-            relatedTasks: goal.relatedTasks ? goal.relatedTasks.filter(task => task.id !== taskId) : []
-          };
-        }
-        return goal;
+  const handleTaskDelete = async (goalId: string, taskId: string) => {
+    try {
+      // First, update the task to set relatedToGoal to false
+      await taskService.updateTask(taskId, {
+        relatedToGoal: false
       });
-    });
+  
+      // Then update the local goals state to remove the task
+      setGoals(prevGoals => {
+        return prevGoals.map(goal => {
+          if (goal.id === goalId) {
+            return {
+              ...goal,
+              relatedTasks: goal.relatedTasks ? 
+                goal.relatedTasks.filter(task => task.id !== taskId) 
+                : []
+            };
+          }
+          return goal;
+        });
+      });
+    } catch (error) {
+      console.error('Failed to delete task from goal:', error);
+    }
   };
 
   const handleCreateGoal = (goalData: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -187,6 +203,30 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
     }
   };
 
+  const handleTaskUpdate = async (updatedTaskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!editingTask) return;
+  
+    try {
+      // Update task in the service
+      const updatedTask = await taskService.updateTask(editingTask.id, {
+        ...updatedTaskData,
+        updatedAt: new Date()
+      });
+  
+      // Update local state
+      setGoals(prevGoals => prevGoals.map(goal => ({
+        ...goal,
+        relatedTasks: goal.relatedTasks?.map(task => 
+          task.id === editingTask.id ? updatedTask : task
+        )
+      })));
+  
+      setIsTaskEditModalOpen(false);
+      setEditingTask(null);
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-6" ref={containerRef}>
@@ -237,9 +277,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
       </div>
 
 
-
-
-
       {/* Goal Creation/Edit Dialog */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl">
@@ -285,6 +322,24 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
         onTaskAdd={handleAddTaskToGoal}
         existingTasks={goals.find(g => g.id === selectedGoalId)?.relatedTasks as Task[] || []} // Explicitly cast to Task[]
       />
+
+      <Dialog open={isTaskEditModalOpen} onOpenChange={setIsTaskEditModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          {editingTask && (
+          <TaskForm
+              initialTask={editingTask}
+              onSubmit={handleTaskUpdate}
+              onCancel={() => {
+                setIsTaskEditModalOpen(false);
+                setEditingTask(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
 
 
