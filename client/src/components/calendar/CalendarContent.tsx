@@ -1,11 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import  Calendar  from '@/components/features/calendar/Calendar';
-import { AddTaskModal } from '@/components/features/calendar/AddTaskModal';
+import  Calendar  from '@/components/calendar/Calendar';
+import { AddTaskModal } from '@/components/calendar/AddTaskModal';
 import { Button } from '@/components/ui/button';
-import { Task } from '@/types/tasksType';
-import { calendarEvent } from '@/types/calendarType';
+
+interface Task {
+    id: string;  // Add this
+    title: string;
+    date: Date;
+    description: string;
+    start: Date;  // Add this
+    end: Date;    // Add this
+}
 
 export function CalendarContent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -16,40 +23,17 @@ export function CalendarContent() {
     setTasks([...tasks, task]);
   };
 
-  const handleEventAdd = (event: calendarEvent) => {
-    const newTask: Task = {
-      id: event.id,
-      title: event.title,
-      description: event.description || '',
-      dueDate: event.start,
-      priority: 'medium',
-      status: 'todo',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    handleAddTask(newTask);
-  };
-
   const tasksForSelectedDate = tasks.filter(
-    task => selectedDate && task.dueDate.toDateString() === selectedDate.toDateString()
+    task => selectedDate && task.date.toDateString() === selectedDate.toDateString()
   );
-
-  // Convert tasks to CalendarEvent format
-  const calendarEvents = tasks.map(task => ({
-    id: task.id,
-    title: task.title,
-    start: task.dueDate,
-    end: task.dueDate,
-    description: task.description
-  }));
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
         <div className="flex-1">
           <Calendar
-            events={calendarEvents}
-            onEventAdd={handleEventAdd}
+            events={tasks}
+            onEventAdd={handleAddTask}
             onEventClick={(event) => console.log('Event clicked:', event)}
           />
           <Button 

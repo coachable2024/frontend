@@ -4,11 +4,12 @@ import { useState } from 'react';
 import Calendar from '@/components/features/calendar/Calendar';
 import { TaskList } from '@/components/features/task/TaskList';
 import GoalCard from '@/components/features/goals/GoalCard';
-import { Task } from '@/types/task';
-import { CalendarEvent } from '@/components/features/calendar/types';
+import { Task } from '@/types/tasksType';
+import { calendarEvent } from '@/types/calendarType';
+import { Goal } from 'lucide-react';
 
 const Dashboard = () => {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [events, setEvents] = useState<calendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: '1',
@@ -26,11 +27,11 @@ const Dashboard = () => {
     console.log('Task clicked:', task);
   };
 
-  const handleEventAdd = (event: Omit<CalendarEvent, 'id'>) => {
+  const handleEventAdd = (event: Omit<calendarEvent, 'id'>) => {
     console.log('New event:', event);
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
+  const handleEventClick = (event: calendarEvent) => {
     console.log('Event clicked:', event);
   };
 
@@ -42,7 +43,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Current Goal</h2>
           <GoalCard 
-            why="Your motivation here"
+            motivation ="Your motivation here"
             actions={[{
               name: "Action 1",
               time: {hours: 10, minutes: 0},

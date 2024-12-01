@@ -6,28 +6,12 @@ import { PlusIcon } from '@radix-ui/react-icons';
 import GoalCard from '@/components/features/goals/GoalCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { GoalForm } from '@/components/features/goals/GoalForm';
-import { Goal, GoalStatus, GoalCategory, CreateGoalDTO} from '@/types/goalsType';
+import { Goal, GoalStatus, GoalCategory } from '@/types/goalsType';
 import { Task, TaskStatus } from '@/types/tasksType';
-import AddTaskToGoal from '@/components/features/goals/AddTaskToGoal';
-import { goalService, taskService } from '@/services';
 
-
-interface GoalsPageProps {To
+interface GoalsPageProps {
   isMainExpanded?: boolean;
 }
-
-interface GoalService {
-  createGoal: (goal: CreateGoalDTO) => Promise<Goal>;
-  addTaskToGoal: (goalId: string, taskId: string) => Promise<void>; // Add this line
-}
-
-// interface AddTaskToGoalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   goalId: string | null;
-//   onTaskAdd: (tasks: Task[], mode: 'existing' | 'new') => void;
-//   existingTasks: Task[]; // Change this line to accept Task[]
-// }
 
 const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -38,22 +22,67 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-
-
-  // Mock for testing 
+  // Mock data for testing
   useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        const goals = await goalService.getGoals();
-        setGoals(goals);
-      } catch (error) {
-        console.error('Failed to fetch goals:', error);
+    const mockTasks: Task[] = [
+      {
+        id: '1',
+        title: 'Morning jog',
+        description: 'Quick 5K run',
+        status: 'todo' as TaskStatus,
+        priority: 'high',
+        duration: 60, // 60 minutes
+        dueDate: new Date('2024-03-30'),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: '2',
+        title: 'Meal prep',
+        description: 'Prepare healthy meals for the week',
+        status: 'completed' as TaskStatus,
+        priority: 'medium',
+        duration: 150, // 2.5 hours
+        dueDate: new Date('2024-03-31'),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
-    };
-  
-    fetchGoals();
-  }, []);
+    ];
 
+    const mockGoals: Goal[] = [
+      {
+        id: '1',
+        title: 'Improve Health and Fitness',
+        motivation: 'To improve my health and energy levels',
+        status: 'in-progress' as GoalStatus,
+        category: 'health' as GoalCategory,
+        relatedTasks: mockTasks,
+        targetDate: new Date('2024-06-30'),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        reward: 'New workout gear',
+        metrics: {
+          target: 10,
+          current: 3,
+          unit: 'workouts'
+        }
+      },
+      {
+        id: '2',
+        title: 'Learn Web Development',
+        motivation: 'To advance my career in tech',
+        status: 'not-started' as GoalStatus,
+        category: 'career' as GoalCategory,
+        relatedTasks: [],
+        targetDate: new Date('2024-12-31'),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        reward: 'New laptop'
+      }
+    ];
+
+    setGoals(mockGoals);
+  }, []);
 
   // track usable width 
   useEffect(() => {
@@ -67,7 +96,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
-
 
   const handleGoalEdit = (goal: Goal) => {
     setEditingGoal(goal);  // You'll need to add this state
@@ -139,54 +167,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   };
 
 
-  const handleAddTaskToGoal = async (tasks: Task[], mode: 'existing' | 'new') => {
-    if (!selectedGoalId) return;
-    
-    try {
-      console.log('Starting task addition:', { tasks, mode, selectedGoalId });
-      
-      const updatedTasks = await Promise.all(tasks.map(async (task) => {
-        if (mode === 'new') {
-          const newTask = await taskService.createTask({
-            ...task,
-            relatedToGoal: true
-          });
-          console.log('Created new task:', newTask);
-          return newTask;
-        } else {
-          const updatedTask = await taskService.updateTask(task.id, {
-            relatedToGoal: true
-          });
-          console.log('Updated existing task:', updatedTask);
-          return updatedTask;
-        }
-      }));
-  
-      // First update the tasks in the goal service
-      await Promise.all(updatedTasks.map(task => 
-        goalService.addTaskToGoal(selectedGoalId, task.id)
-      ));
-  
-      // Then fetch the updated goal to ensure we have the latest state
-      const updatedGoal = await goalService.getGoalById(selectedGoalId);
-      console.log('Updated goal from service:', updatedGoal);
-  
-      // Update the local state with a new reference
-      setGoals(prevGoals => {
-        const newGoals = prevGoals.map(goal => 
-          goal.id === selectedGoalId 
-            ? { ...updatedGoal, relatedTasks: [...(updatedGoal.relatedTasks || [])] }
-            : goal
-        );
-        console.log('New goals state:', newGoals);
-        return newGoals;
-      });
-  
-    } catch (error) {
-      console.error('Failed to add tasks to goal:', error);
-    }
-  };
-
 
   return (
     <div className="container mx-auto px-4 py-6" ref={containerRef}>
@@ -222,16 +202,16 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
         }`}
       >
         {goals.map(goal => (
-          // In the goals.map() section of GoalsPage
           <GoalCard
             key={goal.id}
             goal={goal}
-            onTaskStatusChange={(taskId, status) => handleTaskStatusChange(goal.id, taskId, status)}
+            onTaskStatusChange={(taskId, status) => 
+              handleTaskStatusChange(goal.id, taskId, status)
+            }
             onTaskEdit={(task) => handleTaskEdit(goal.id, task)}
             onTaskDelete={(taskId) => handleTaskDelete(goal.id, taskId)}
             onGoalEdit={handleGoalEdit}
             onGoalDelete={handleGoalDelete}
-            onAddTask={handleAddTask}  // Add this line
           />
         ))}
       </div>
@@ -274,20 +254,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
           />
         </DialogContent>
       </Dialog>
-
-      <AddTaskToGoal
-        isOpen={isTaskModalOpen}
-        onClose={() => {
-          setIsTaskModalOpen(false);
-          setSelectedGoalId(null);
-        }}
-        goalId={selectedGoalId}
-        onTaskAdd={handleAddTaskToGoal}
-        existingTasks={goals.find(g => g.id === selectedGoalId)?.relatedTasks as Task[] || []} // Explicitly cast to Task[]
-      />
-
-
-
     </div>
   );
 };

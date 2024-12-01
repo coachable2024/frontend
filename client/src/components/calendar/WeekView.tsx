@@ -1,11 +1,14 @@
-import { calendarEvent, WeekViewProps } from '@/types/calendarType';
+interface WeekViewProps {
+  currentDate: Date;
+  calendarEvents: Event[];
+  onEventClick: (event: Event) => void;
+}
 
-export const WeekView: React.FC<WeekViewProps> = ({ currentDate, events, onEventClick }) => {
+export function WeekView({ currentDate, calendarEvents, onEventClick }: WeekViewProps) {
   // Get start of week (Sunday)
   const getWeekDays = () => {
     const start = new Date(currentDate);
     start.setDate(start.getDate() - start.getDay());
-    
     return Array.from({ length: 7 }, (_, i) => {
       const date = new Date(start);
       date.setDate(start.getDate() + i);
@@ -62,4 +65,4 @@ export const WeekView: React.FC<WeekViewProps> = ({ currentDate, events, onEvent
       </div>
     </div>
   );
-};
+}

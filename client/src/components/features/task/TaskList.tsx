@@ -1,6 +1,6 @@
 // components/task/TaskList.tsx
 import { useState } from 'react';
-import { Task } from '@/types/task';
+import { Task } from '@/types/tasksType';
 import { format } from 'date-fns';
 
 interface TaskListProps {

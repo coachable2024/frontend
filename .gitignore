@@ -1,8 +1,21 @@
-client/node_modules
-client/.next/
+# OS generated files
+.DS_Store
+*/.DS_Store
+
+# Node modules
+node_modules
+
+# Environment variables
 .env
+
+# Dist folder
 dist
 .vercel
 .env.local
 .env.production
-**/.DS_Store
+
+# Next.js build output
+.next/
+*/.next/*
+.vercel
+client/.next/

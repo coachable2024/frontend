@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { OnboardingState, Coach } from '@/types/onboarding';
+import { OnboardingState, Coach } from '@/types/onboardingType';
 import WelcomeStep from './WelcomeStep';
 import CoachSelectionStep from './CoachSelectionStep';
 import { useRouter } from 'next/navigation';

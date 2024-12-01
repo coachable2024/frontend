@@ -1,50 +1,52 @@
 import React, { useState } from 'react';
-import { Clock, Gift, CheckSquare, Square, ChevronDown } from 'lucide-react';
-
-interface TimeRequirement {
-  hours: number;
-  minutes: number;
-}
-
-interface Action {
-  name: string;
-  time: TimeRequirement;
-  completed: boolean;
-}
+import { Button } from '@/components/ui/button';
+import { Goal, GoalStatus } from '@/types/goalsType';
+import { Task, TaskStatus } from '@/types/tasksType';
+import { Clock, Gift, CheckSquare, Square, ChevronDown, Goal as GoalIcon, PlusIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { formatDuration } from '@/utils/formatter';
 
 interface GoalCardProps {
-  why: string;
-  actions: Action[];
-  reward: string;
-  onActionToggle?: (index: number) => void;
+  goal: Goal;
+  onTaskStatusChange?: (taskId: string, status: TaskStatus) => void;
+  onTaskEdit?: (task: Task) => void;
+  onTaskDelete?: (taskId: string) => void;
+  onGoalEdit?: (goal: Goal) => void;
+  onGoalDelete?: (goalId: string) => void;
+  onAddTask?: (goalId: string) => void;
+  
 }
 
-const formatTime = (time: TimeRequirement) => {
-  const hours = time.hours > 0 ? `${time.hours}h` : "";
-  const minutes = time.minutes > 0 ? `${time.minutes}m` : "";
-  return `${hours} ${minutes}`.trim();
-};
 
-const GoalCard: React.FC<GoalCardProps> = ({ 
-  why = "", 
-  actions = [], 
-  reward = "", 
-  onActionToggle 
+
+const GoalCard: React.FC<GoalCardProps> = ({
+  goal,
+  onTaskStatusChange,
+  onTaskEdit,
+  onTaskDelete,
+  onGoalEdit,
+  onGoalDelete,
+  onAddTask
 }) => {
+  if (!goal) {
+    return null;
+  }
+
+
+  // add log to debug:
+  console.log('GoalCard rendered with goal:', goal);
+  console.log('Related tasks:', goal.relatedTasks);
+
   const [isExpanded, setIsExpanded] = useState(true);
-  
-  const completedActions = actions?.filter(action => action.completed)?.length || 0;
-  const progress = actions?.length ? (completedActions / actions.length) * 100 : 0;
-  
-  const totalTime = actions?.reduce((acc, action) => {
-    return {
-      hours: acc.hours + action.time.hours,
-      minutes: acc.minutes + action.time.minutes
-    };
-  }, { hours: 0, minutes: 0 }) || { hours: 0, minutes: 0 };
+
+  // Calculate completion statistics
+  const relatedTasks = goal.relatedTasks ?? [];
+  const completedTasks = relatedTasks.filter(task => task.status === 'completed').length;
+  const progress = relatedTasks.length ? (completedTasks / relatedTasks.length) * 100 : 0;
+  const totalDuration = relatedTasks.reduce((acc, task) => acc + (task.duration || 0), 0);
 
   return (
-    <div className="bg-white rounded-lg shadow-md mb-4 transform transition-all duration-200 hover:shadow-lg">
+    <div className="bg-white rounded-lg shadow-md transform transition-all duration-200 hover:shadow-lg h-full flex flex-col">
       {/* Progress Bar */}
       <div className="h-1 bg-gray-100 w-full rounded-t-lg overflow-hidden">
         <div 
@@ -53,72 +55,159 @@ const GoalCard: React.FC<GoalCardProps> = ({
         />
       </div>
 
-      {/* Why Section */}
-      <div className="p-6 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            Why?
-          </h2>
-          <ChevronDown 
-            className={`h-5 w-5 transform transition-transform duration-200 ${
-              isExpanded ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
-        <p className="text-gray-600 mt-2">{why}</p>
-      </div>
+      {/* Card Content */}
+      <div className="flex flex-col flex-grow">
+        {/* Header Section */}
+        <div className="p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-grow cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+              <h2 className="text-lg font-semibold line-clamp-2">{goal.title}</h2>
+              <div className="text-sm text-gray-500 mt-1">
+                Target Date: {format(new Date(goal.targetDate), 'MMM d, yyyy')}
+              </div>
+              <p className="text-gray-600 mt-2 line-clamp-3">{goal.motivation}</p>
+            </div>
 
-      {/* Collapsible Content */}
-      <div className={`transition-all duration-300 ${
-        isExpanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
-      }`}>
-        {/* Action List Section */}
-        <div className="px-6 pb-6">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold">Action List</h3>
-            <div className="text-sm text-gray-500">
-              {completedActions}/{actions.length} completed
+            {/* Controls */}
+            <div className="flex items-start ml-4 gap-2 flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-blue-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGoalEdit?.(goal);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-red-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGoalDelete?.(goal.id);
+                }}
+              >
+                Delete
+              </Button>
+              <ChevronDown 
+                className={`h-5 w-5 transform transition-transform duration-200 ml-2 ${
+                  isExpanded ? 'rotate-180' : ''
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable Content */}
+        <div 
+          className={`transition-all duration-300 ${
+            isExpanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
+          }`}
+        >
+          {/* Tasks Section */}
+          <div className="px-6 pb-6">
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold">Related Tasks</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1 text-sm"
+                  onClick={() => onAddTask?.(goal.id)}
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  Add Task
+                </Button>
+              </div>
+              <div className="text-sm text-gray-500">
+                {completedTasks}/{relatedTasks.length} completed
+              </div>
+            </div>
+
+            {/* Tasks List */}
+            <div className="space-y-3">
+              {relatedTasks.map((task) => (
+                <div 
+                  key={task.id}
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  {/* Task Status and Title */}
+                  <div className="flex items-center gap-2">
+                    <div 
+                      onClick={() => onTaskStatusChange?.(
+                        task.id,
+                        task.status === 'completed' ? 'todo' : 'completed'
+                      )}
+                      className="cursor-pointer"
+                    >
+                      {task.status === 'completed' ? (
+                        <CheckSquare className="h-5 w-5 text-green-500 transition-all duration-200 hover:scale-110" />
+                      ) : (
+                        <Square className="h-5 w-5 transition-all duration-200 hover:scale-110" />
+                      )}
+                    </div>
+                    <span className={`${task.status === 'completed' ? 'text-gray-500 line-through' : ''} line-clamp-1`}>
+                      {task.title}
+                    </span>
+                  </div>
+
+                  {/* Task Actions */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      <span>{formatDuration(task.duration)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onTaskEdit?.(task)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onTaskDelete?.(task.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Total Duration */}
+            <div className="mt-4 text-sm text-gray-500 flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span>Total time: {formatDuration(totalDuration)}</span>
             </div>
           </div>
 
-          <div className="space-y-3">
-            {actions.map((action, actionIndex) => (
-              <div 
-                key={actionIndex}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                onClick={() => onActionToggle?.(actionIndex)}
-              >
-                <div className="flex items-center gap-2">
-                  {action.completed ? (
-                    <CheckSquare className="h-5 w-5 text-green-500 transition-all duration-200 hover:scale-110 cursor-pointer" />
-                  ) : (
-                    <Square className="h-5 w-5 transition-all duration-200 hover:scale-110 cursor-pointer" />
-                  )}
-                  <span className={action.completed ? 'text-gray-500 line-through' : ''}>
-                    {action.name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Clock className="h-4 w-4" />
-                  <span>{formatTime(action.time)}</span>
+          {/* Metrics Section */}
+          {goal.metrics && (
+            <div className="px-6 pb-6 border-t pt-6">
+              <div className="flex items-center gap-3 p-2 rounded-lg bg-blue-50">
+                <div className="text-gray-700">
+                  Progress: {goal.metrics.current} / {goal.metrics.target} {goal.metrics.unit}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
-          {/* Total Time */}
-          <div className="mt-4 text-sm text-gray-500 flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span>Total time: {formatTime(totalTime)}</span>
-          </div>
-        </div>
-
-        {/* Reward Section */}
-        <div className="px-6 pb-6 border-t pt-6">
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-purple-50">
-            <Gift className="h-5 w-5 text-purple-500" />
-            <span className="text-gray-700">{reward}</span>
-          </div>
+          {/* Reward Section */}
+          {goal.reward && (
+            <div className="px-6 pb-6 border-t pt-6">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Gift className="h-4 w-4" />
+                <span>Reward: {goal.reward}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

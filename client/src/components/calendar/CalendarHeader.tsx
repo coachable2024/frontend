@@ -1,4 +1,4 @@
-import { CalendarView } from '@/types/calendarType'
+import { CalendarView } from "../../types/calendarType";
 
 interface CalendarHeaderProps {
     currentDate: Date;
@@ -8,13 +8,13 @@ interface CalendarHeaderProps {
     view: CalendarView;
   }
   
-  export const CalendarHeader = ({
+  export function CalendarHeader({
     currentDate,
     onPrevious,
     onNext,
     onToday,
     view,
-  }: CalendarHeaderProps) => {
+  }: CalendarHeaderProps) {
     const formatDate = () => {
       const options: Intl.DateTimeFormatOptions = {
         month: 'long',

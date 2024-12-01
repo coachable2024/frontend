@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Coach } from '../../../types/onboarding';
-import { Goal } from '../../../types/goal';
+import { Coach } from '../../../types/onboardingType';
+import { Goal } from '../../../types/goalsType';
+import {formatDuration} from '@/utils/formatter'
+
+
 
 interface CoachChatStepProps {
   coach: Coach;
@@ -104,16 +107,18 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
   const formatGoalProposal = (goal: Goal): string => {
     return `I've understood your goal. Here's what I propose:\n\n` +
            `🎯 ${goal.title}\n\n` +
-           `💭 Why: ${goal.why}\n\n` +
-           `📝 Actions:\n${goal.actions.map(a => 
-             `• ${a.name} (${formatTime(a.time)})`).join('\n')}\n\n` +
+           `💭 Why: ${goal.motivation}\n\n` +
+           `📝 Actions:\n${goal.relatedTasks?.map(a => 
+             `• ${a.title} (${formatDuration(a.duration)})`).join('\n')}\n\n` +
            `🎁 Reward: ${goal.reward}\n\n` +
            `Would you like me to add this goal to your dashboard?`;
   };
 
-  return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+return (
+  <div className="flex flex-col h-full">
+    {/* Messages section */}
+    <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="p-4 space-y-4">
         {messages
           .filter(message => message.role !== 'system')
           .map((message, index) => (
@@ -159,38 +164,39 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
         )}
         <div ref={chatEndRef} />
       </div>
-      
-      <div className="p-4 border-t">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            className="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Type your message..."
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={!input.trim() || isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                     transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Send
-          </button>
-        </div>
-        {proposedGoal && (
-          <button
-            onClick={handleConfirmGoal}
-            className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg 
-                     hover:bg-green-700 transition-colors"
-          >
-            Confirm Goal
-          </button>
-        )}
-      </div>
     </div>
-  );
-};
 
+    {/* Input section */}
+    <div className="flex-none border-t bg-white p-4">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+          className="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Type your message..."
+        />
+        <button
+          onClick={handleSendMessage}
+          disabled={!input.trim() || isLoading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                   transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+        </button>
+      </div>
+      {proposedGoal && (
+        <button
+          onClick={handleConfirmGoal}
+          className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg 
+                   hover:bg-green-700 transition-colors"
+        >
+          Confirm Goal
+        </button>
+      )}
+    </div>
+  </div>
+);
+};
 export default CoachChatStep;
