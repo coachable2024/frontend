@@ -2,29 +2,32 @@
 import { Task } from './tasksType';
 
 // Define the possible status values for a goal
-export type GoalStatus = 'not-started' | 'in-progress' | 'completed' | 'cancelled';
+// repetitive - delete
+// export type GoalStatus = 'not-started' | 'in-progress' | 'completed' | 'cancelled';
 
 // Define the possible categories 
-export type GoalCategory = 'health' | 'finance' | 'relationship' | 'career' | 'personal';
+export type GoalCategory = 'goal' | 'habit';
 
 // Define the main Goal interface
 export interface Goal {
   id: string;
   title: string;
-  motivation: string;
-  status: GoalStatus;
+  description: string;
+  // status: GoalStatus;
   category: GoalCategory;
   relatedTasks?: Task[];
   targetDate: Date;
+  startDate: Date;
+  completedDate: Date;
   createdAt: Date;
   updatedAt: Date;
-  reward: string;
+  reward?: string;
   progress?: number;  // Optional progress percentage
-  metrics?: {         // Optional metrics for tracking
-    target: number;
-    current: number;
-    unit: string;
-  };
+  // metrics?: {         // Optional metrics for tracking // repetitive, delete
+  //   target: number;
+  //   current: number;
+  //   unit: string;
+  // };
 }
 
 // Type for creating a new goal (omitting auto-generated fields)

@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon } from '@radix-ui/react-icons';
 import GoalCard from '@/components/features/goals/GoalCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { GoalForm } from '@/components/features/goals/GoalForm';
-import { Goal, GoalStatus, GoalCategory, CreateGoalDTO} from '@/types/goalsType';
+import { Goal, GoalCategory, CreateGoalDTO} from '@/types/goalsType';
 import { Task, TaskStatus } from '@/types/tasksType';
 import AddTaskToGoal from '@/components/features/goals/AddTaskToGoal';
 import { goalService, taskService } from '@/services';
 import { TaskForm } from '@/components/features/task/TaskForm';
+import { Plus, Target } from 'lucide-react';
 
 
-interface GoalsPageProps {To
+interface GoalsPageProps {
   isMainExpanded?: boolean;
 }
 
@@ -21,14 +21,6 @@ interface GoalService {
   createGoal: (goal: CreateGoalDTO) => Promise<Goal>;
   addTaskToGoal: (goalId: string, taskId: string) => Promise<void>; // Add this line
 }
-
-// interface AddTaskToGoalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   goalId: string | null;
-//   onTaskAdd: (tasks: Task[], mode: 'existing' | 'new') => void;
-//   existingTasks: Task[]; // Change this line to accept Task[]
-// }
 
 const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -114,7 +106,7 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
     try {
       // First, update the task to set relatedToGoal to false
       await taskService.updateTask(taskId, {
-        relatedToGoal: false
+        // relatedToGoal: false
       });
   
       // Then update the local goals state to remove the task
@@ -165,13 +157,13 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
         if (mode === 'new') {
           const newTask = await taskService.createTask({
             ...task,
-            relatedToGoal: true
+            // relatedToGoal: true
           });
           console.log('Created new task:', newTask);
           return newTask;
         } else {
           const updatedTask = await taskService.updateTask(task.id, {
-            relatedToGoal: true
+            // relatedToGoal: true
           });
           console.log('Updated existing task:', updatedTask);
           return updatedTask;
@@ -229,49 +221,43 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6" ref={containerRef}>
+    // <div className="container mx-auto px-4 py-6" ref={containerRef}>
+    <div className="flex-1 bg-white p-6 overflow-y-auto" ref={containerRef}>
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Goals</h1>
+      <h2 className="text-2xl font-bold">Goals</h2>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          <PlusIcon className="h-4 w-4" />
+          <Plus size={20} />
           Add Goal
         </Button>
       </div>
 
-      {/* Empty State Message */}
+
+      {/* Empty State */}
       {goals.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          No goals yet. Click the "Add Goal" button to create one!
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <Target size={48} className="text-gray-300 mb-4" />
+          <p className="text-lg">No goals yet</p>
+          <p className="text-sm">Click the "Add Goal" button to create one!</p>
         </div>
       )}
 
-      {/* Responsive Grid Layout */}
-      <div 
-        className={`grid gap-6 ${
-          isMainExpanded 
-            ? 'grid-cols-1' // Vertical layout when middle section is expanded
-            : containerWidth >= 1200 
-              ? 'grid-cols-3' // 3 cards per row on very wide screens
-              : containerWidth >= 800 
-                ? 'grid-cols-2' // 2 cards per row on medium-wide screens
-                : 'grid-cols-1' // 1 card per row on narrow screens
-        }`}
-      >
+      {/* Goals Grid */}
+      <div className="space-y-6">
         {goals.map(goal => (
-          // In the goals.map() section of GoalsPage
           <GoalCard
             key={goal.id}
             goal={goal}
-            onTaskStatusChange={(taskId, status) => handleTaskStatusChange(goal.id, taskId, status)}
+            onTaskStatusChange={(taskId, status) => 
+              handleTaskStatusChange(goal.id, taskId, status)}
             onTaskEdit={(task) => handleTaskEdit(goal.id, task)}
             onTaskDelete={(taskId) => handleTaskDelete(goal.id, taskId)}
             onGoalEdit={handleGoalEdit}
             onGoalDelete={handleGoalDelete}
-            onAddTask={handleAddTask}  // Add this line
+            onAddTask={handleAddTask}
           />
         ))}
       </div>
@@ -340,9 +326,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
           )}
         </DialogContent>
       </Dialog>
-
-
-
     </div>
   );
 };

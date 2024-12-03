@@ -35,6 +35,7 @@ const AddTaskToGoal: React.FC<AddTaskToGoalProps> = ({
     dueDate: format(new Date(), 'yyyy-MM-dd'),
     priority: 'medium' as TaskPriority,
     status: 'todo' as TaskStatus,
+    startDate: '',
     duration: 30,
     relatedToGoal: true,
     category: ''
@@ -80,7 +81,7 @@ const AddTaskToGoal: React.FC<AddTaskToGoalProps> = ({
   };
 
   const handleNewTaskSubmit = (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
-    onTaskAdd([{ ...taskData, relatedToGoal: true } as Task], "new");
+    onTaskAdd({ ...taskData } as Task, "new");
     onClose();
   };
 
@@ -217,7 +218,6 @@ const AddTaskToGoal: React.FC<AddTaskToGoalProps> = ({
                 onSubmit={handleNewTaskSubmit}
                 onCancel={onClose}
                 initialTask={{
-                relatedToGoal: true
                 }}
             />
           </TabsContent>
