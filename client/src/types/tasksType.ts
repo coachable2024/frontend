@@ -1,5 +1,5 @@
 //@/types/tasksType.ts
-
+import { DateTime } from "luxon";
 import { Goal } from "./goalsType";
 
 export type TaskPriority = 'low' | 'medium' | 'high';
@@ -12,13 +12,12 @@ export interface Task {
   dueDate: Date;
   priority: TaskPriority;
   status: TaskStatus;
-  relatedGoal?: Goal[];
-  relatedToGoal: boolean;
-  duration?: number;
-  category?: string;
-  attachments?: string[];
+  relatedGoal?: Goal; // changed to one-to-one
+  // relatedToGoal: boolean;
+  duration?: number; // unit: minute
   createdAt: Date;
   updatedAt: Date;
+  startTime: DateTime;
 }
 
 // reference a goal

@@ -1,6 +1,6 @@
 // services/api/goalService.ts
 import axios from 'axios';
-import { Goal, GoalStatus } from '@/types/goalsType';
+import { Goal } from '@/types/goalsType';
 
 const API_BASE_URL = 'http://localhost:8000/api/goals'; // Adjust URL as needed
 
@@ -41,6 +41,37 @@ export const goalService = {
     }
   },
 
+    // Add a specific method for updating goal progress
+    async updateGoalProgress(id: string, progress: number): Promise<Goal> {
+      try {
+        const { data } = await axios.patch(`${API_BASE_URL}/${id}/progress`, { progress });
+        return data;
+      } catch (error) {
+        throw new Error('Failed to update goal progress');
+      }
+    },  
+
+      // Method to update progress based on task completion
+    async calculateAndUpdateProgress(id: string): Promise<Goal> {
+      try {
+        const { data } = await axios.post(`${API_BASE_URL}/${id}/calculate-progress`);
+        return data;
+      } catch (error) {
+        throw new Error('Failed to calculate and update goal progress');
+      }
+    },
+
+      // Utility method to get goal progress
+  async getGoalProgress(id: string): Promise<number> {
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/${id}/progress`);
+      return data.progress;
+    } catch (error) {
+      throw new Error('Failed to get goal progress');
+    }
+  },
+
+
   async deleteGoal(id: string): Promise<void> {
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
@@ -67,7 +98,7 @@ export const goalService = {
     }
   },
 
-  async updateGoalStatus(id: string, status: GoalStatus): Promise<Goal> {
+  async updateGoalStatus(id: string): Promise<Goal> {
     try {
       const { data } = await axios.patch(`${API_BASE_URL}/${id}/status`, { status });
       return data;
