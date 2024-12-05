@@ -1,9 +1,10 @@
-
 // components/task/TaskForm.tsx
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Task, TaskPriority, TaskStatus } from '@/types/tasksType';
 import { formatDuration } from '@/utils/formatter';
+import { DateTime } from 'luxon';
+
 
 interface TaskFormProps {
   initialTask?: Partial<Task>;
@@ -64,26 +65,48 @@ const DurationInput = ({ duration, onChange }: DurationInputProps) => {
   );
 };
 
-export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps,
-  { duration, onChange }: DurationInputProps
-) {
+export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps) {
   const [formData, setFormData] = useState({
     title: initialTask?.title || '',
     description: initialTask?.description || '',
     dueDate: initialTask?.dueDate ? format(initialTask.dueDate, 'yyyy-MM-dd') : '',
-    duration: initialTask?.duration ? initialTask.duration : 15,
+    duration: initialTask?.duration || 15,
     priority: initialTask?.priority || 'medium' as TaskPriority,
     status: initialTask?.status || 'todo' as TaskStatus,
-    category: initialTask?.category || ''
+    category: initialTask?.category || '',
+    startDate: initialTask?.startTime 
+      ? initialTask.startTime.toFormat('yyyy-MM-dd')
+      : '',
+    startTime: initialTask?.startTime 
+      ? initialTask.startTime.toFormat('HH:mm')
+      : ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    let startTime: DateTime | undefined = undefined;
+    
+    if (formData.startDate && formData.startTime) {
+      const [hours, minutes] = formData.startTime.split(':').map(Number);
+      const [year, month, day] = formData.startDate.split('-').map(Number);
+      
+      startTime = DateTime.fromObject({
+        year,
+        month,
+        day,
+        hour: hours,
+        minute: minutes
+      });
+    }
+
     onSubmit({
       ...formData,
-      dueDate: new Date(formData.dueDate)
+      dueDate: new Date(formData.dueDate),
+      startTime
     });
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,8 +142,8 @@ export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps,
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className="space-y-4">
+      <div>
           <label className="block text-sm font-medium text-gray-700">Due Date</label>
           <input
             type="date"
@@ -130,6 +153,31 @@ export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps,
             required
           />
         </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Start Date</label>
+            <input
+              type="date"
+              value={formData.startDate}
+              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Start Time</label>
+            <input
+              type="time"
+              value={formData.startTime}
+              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              disabled={!formData.startDate} // Disable time input if no date is selected
+            />
+          </div>
+          </div>
+        </div>
+
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Priority</label>
@@ -143,7 +191,7 @@ export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps,
             <option value="high">High</option>
           </select>
         </div>
-      </div>
+
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -178,3 +226,4 @@ export function TaskForm({ initialTask, onSubmit, onCancel }: TaskFormProps,
     </form>
   );
 }
+

@@ -5,8 +5,7 @@ import Calendar from '@/components/features/calendar/Calendar';
 import { TaskList } from '@/components/features/task/TaskList';
 import GoalCard from '@/components/features/goals/GoalCard';
 import { Task } from '@/types/tasksType';
-import { calendarEvent } from '@/types/calendarType';
-import { Goal } from 'lucide-react';
+import { CalendarComponent} from '@/components/features/calendar_test/DailyView';
 
 const Dashboard = () => {
   const [events, setEvents] = useState<calendarEvent[]>([]);
