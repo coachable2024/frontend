@@ -1,23 +1,65 @@
 'use client'
+
 import React, { useState } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight,
   Plus,
   Pencil,
-  Brain,
-  Heart,
-  MoreVertical,
-  MoreHorizontal
 } from 'lucide-react';
+import type { Task } from '@/types/tasksType';
+import { DateTime } from 'luxon';
+
+// Props interface definitions
+interface CalendarProps {
+  tasks: Task[];
+  onEditTask: (task: Task) => void;
+}
+
+interface ViewProps {
+  currentDate: Date;
+  tasks: Task[];
+  onEditTask: (task: Task) => void;
+}
+
+// Utility function to calculate event position and duration
+const calculateEventPosition = (task: Task) => {
+  if (!task.startTime || !task.duration) return null;
+  
+  const startHour = task.startTime.hour;
+  const startMinute = task.startTime.minute;
+  const durationInMinutes = task.duration;
+  
+  const startPosition = (startHour * 80) + (startMinute / 60 * 80);
+  const endPosition = startPosition + (durationInMinutes / 60 * 80);
+  
+  return {
+    top: `${startPosition}px`,
+    height: `${endPosition - startPosition}px`
+  };
+};
+
+const formatMonthYear = (date: Date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+};
+
+const isToday = (date: Date) => {
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear();
+};
 
 // DailyView Component
-const DailyView = ({ currentDate, events }) => {
+const DailyView: React.FC<ViewProps> = ({ currentDate, tasks, onEditTask }) => {
   const timeSlots = Array.from({ length: 24 }, (_, i) => 
     `${i.toString().padStart(2, '0')}:00`
   );
 
-  const formatDate = (date) => {
+  const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -26,19 +68,9 @@ const DailyView = ({ currentDate, events }) => {
     }).format(date);
   };
 
-  const calculateEventPosition = (event) => {
-    const [startHour, startMinute] = event.start.split(':').map(Number);
-    const [endHour, endMinute] = event.end.split(':').map(Number);
-    
-    const startPosition = (startHour * 80) + (startMinute / 60 * 80);
-    const endPosition = (endHour * 80) + (endMinute / 60 * 80);
-    const height = endPosition - startPosition;
-    
-    return {
-      top: `${startPosition}px`,
-      height: `${height}px`
-    };
-  };
+  const dailyTasks = tasks.filter(task => 
+    task.startTime?.hasSame(DateTime.fromJSDate(currentDate), 'day')
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] bg-white rounded-lg border">
@@ -57,53 +89,54 @@ const DailyView = ({ currentDate, events }) => {
           </div>
 
           <div className="flex-1 relative">
-            {timeSlots.map((time) => (
-              <div key={time} className="h-20 border-b p-2">
-                <div className="h-full w-full group hover:bg-blue-50/50 transition-colors relative">
-                  <button className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 flex items-center justify-center">
-                    <Plus className="text-gray-400" size={20} />
-                  </button>
-                </div>
-              </div>
-            ))}
+              {timeSlots.map((time) => (
+                <div key={time} className="h-20 border-b" />
+              ))}
 
-            <div 
-              className="absolute left-0 right-0 border-t-2 border-red-500 z-20"
-              style={{
-                top: `${(new Date().getHours() * 80) + (new Date().getMinutes() / 60 * 80)}px`
-              }}
-            >
-              <div className="w-2 h-2 bg-red-500 rounded-full -mt-1 -ml-1"></div>
-            </div>
+              {/* Current time marker */}
+              {isToday(currentDate) && (
+                <div 
+                  className="absolute left-0 right-0 z-20 pointer-events-none"
+                  style={{
+                    top: `${(new Date().getHours() * 80) + (new Date().getMinutes() / 60 * 80)}px`
+                  }}
+                >
+                  <div className="border-t-2 border-red-500" />
+                  <div className="absolute left-0 w-2 h-2 bg-red-500 rounded-full -mt-1" />
+                </div>
+              )}
 
             <div className="absolute inset-0 p-2">
-              {events.map((event) => (
-                <div
-                  key={event.id}
-                  className={`absolute left-2 right-2 p-3 rounded-lg ${event.color} mb-1 hover:shadow-md transition-shadow`}
-                  style={calculateEventPosition(event)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {event.icon}
-                      <div>
-                        <div className="font-medium">{event.title}</div>
-                        <div className="text-xs">
-                          {event.start} - {event.end}
+              {dailyTasks.map((task) => {
+                const position = calculateEventPosition(task);
+                if (!position) return null;
+
+                return (
+                  <div
+                    key={task.id}
+                    className="absolute left-2 right-2 p-3 rounded-lg bg-blue-100 text-blue-600 hover:shadow-md transition-shadow cursor-pointer"
+                    style={position}
+                    onClick={() => onEditTask(task)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Pencil size={16} />
+                        <div>
+                          <div className="font-medium">{task.title}</div>
+                          <div className="text-xs">
+                            {task.startTime?.toFormat('HH:mm')} - {task.startTime?.plus({ minutes: task.duration || 0 }).toFormat('HH:mm')}
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <button className="p-1 hover:bg-black/5 rounded">
-                      <MoreVertical size={16} />
-                    </button>
+                    {task.description && (
+                      <div className="mt-1 text-sm text-gray-600">
+                        {task.description}
+                      </div>
+                    )}
                   </div>
-                  {event.description && (
-                    <div className="mt-1 text-sm text-gray-600">
-                      {event.description}
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -113,7 +146,7 @@ const DailyView = ({ currentDate, events }) => {
 };
 
 // WeeklyView Component
-const WeeklyView = ({ currentDate, events }) => {
+const WeeklyView: React.FC<ViewProps> = ({ currentDate, tasks = [], onEditTask }) => {
   const timeSlots = Array.from({ length: 24 }, (_, i) => 
     `${i.toString().padStart(2, '0')}:00`
   );
@@ -133,109 +166,88 @@ const WeeklyView = ({ currentDate, events }) => {
     return dates;
   };
 
-  const calculateEventPosition = (event) => {
-    const [startHour, startMinute] = event.start.split(':').map(Number);
-    const [endHour, endMinute] = event.end.split(':').map(Number);
-    
-    const startPosition = (startHour * 80) + (startMinute / 60 * 80);
-    const endPosition = (endHour * 80) + (endMinute / 60 * 80);
-    const height = endPosition - startPosition;
-    
-    return {
-      top: `${startPosition}px`,
-      height: `${height}px`
-    };
-  };
-
-  const isToday = (date) => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear();
-  };
-
   const weekDates = getWeekDates();
 
-  const formatMonthYear = (date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      year: 'numeric'
-    }).format(date);
-  };
-
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] bg-white rounded-lg border">
-      <div className="border-b">
-        <div className="px-4 py-2 border-b">
-          <h3 className="font-medium text-gray-600">{formatMonthYear(currentDate)}</h3>
-        </div>
-        <div className="grid grid-cols-8">
-          <div className="p-4 border-r"></div>
-          {weekDates.map((date, idx) => (
-            <div 
-              key={idx}
-              className={`p-4 text-center ${isToday(date) ? 'bg-blue-50' : ''}`}
-            >
-              <div className="font-medium">{daysOfWeek[idx]}</div>
-              <div className={`text-sm ${isToday(date) ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
-                {date.getDate()}
+    <div className="flex flex-col h-[calc(100vh-12rem)] bg-white rounded-lg border min-h-[600px] overflow-hidden">
+      <div className="border-b flex-shrink-0">
+
+              {/* header content */} 
+              <div className="px-4 py-2 border-b">
+                <h3 className="font-medium text-center">{formatMonthYear(currentDate)}</h3>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-8">
-          <div className="border-r">
-            {timeSlots.map((time) => (
-              <div key={time} className="h-20 border-b p-2 text-sm text-gray-500">
-                {time}
-              </div>
-            ))}
-          </div>
-
-          {weekDates.map((date, dayIndex) => (
-            <div key={dayIndex} className="relative border-r">
-              {timeSlots.map((time) => (
-                <div key={time} className="h-20 border-b">
-                  <div className="h-full w-full group hover:bg-blue-50/50 transition-colors relative">
-                    <button className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 flex items-center justify-center">
-                      <Plus className="text-blue-500" size={20} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {isToday(date) && (
-                <div 
-                  className="absolute left-0 right-0 border-t-2 border-red-500 z-20"
-                  style={{
-                    top: `${(new Date().getHours() * 80) + (new Date().getMinutes() / 60 * 80)}px`
-                  }}
-                >
-                  <div className="w-2 h-2 bg-red-500 rounded-full -mt-1 -ml-1"></div>
-                </div>
-              )}
-
-              <div className="absolute inset-0 p-1 pointer-events-none">
-                {events.map((event) => (
-                  <div
-                    key={event.id}
-                    className={`absolute left-1 right-1 p-1 rounded-lg ${event.color} mb-1 pointer-events-auto cursor-pointer hover:shadow-md transition-shadow`}
-                    style={calculateEventPosition(event)}
-                  >
-                    <div className="flex items-center gap-1">
-                      {event.icon}
-                      <div className="truncate">
-                        <div className="font-medium text-sm truncate">{event.title}</div>
-                        <div className="text-xs truncate">
-                          {event.start} - {event.end}
-                        </div>
-                      </div>
+              <div className="grid grid-cols-8" style={{ marginRight: '17px' }}> {/* Compensate for scrollbar */}
+                <div className="p-4 border-r"></div>
+                {weekDates.map((date, idx) => (
+                  <div key={idx} className={`p-4 text-center ${isToday(date) ? 'bg-blue-50' : ''}`}>
+                    <div className="font-medium">{daysOfWeek[idx]}</div>
+                    <div className={`text-sm ${
+                      isToday(date) 
+                        ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center mx-auto'
+                        : 'text-gray-500'
+                    }`}>
+                      {date.getDate()}
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto relative min-h-0">
+            <div className="grid grid-cols-8">
+              <div className="border-r">
+                {timeSlots.map((time) => (
+                  <div key={time} className="h-20 border-b p-2 text-sm text-gray-500">
+                    {time}
+                  </div>
+                ))}
+              </div>
+
+              {weekDates.map((date, dayIndex) => (
+                <div key={dayIndex} className="relative border-r">
+                  {timeSlots.map((time) => (
+                    <div key={time} className="h-20 border-b" />
+                  ))}
+
+                  {/* Current time marker - only shows for current day */}
+                  {isToday(date) && (
+                    <div 
+                      className="absolute left-0 right-0 z-20 pointer-events-none"
+                      style={{
+                        top: `${(new Date().getHours() * 80) + (new Date().getMinutes() / 60 * 80)}px`
+                      }}
+                    >
+                      <div className="border-t-2 border-red-500" />
+                      <div className="absolute left-0 w-2 h-2 bg-red-500 rounded-full -mt-1" />
+                    </div>
+                  )}
+
+            <div className="absolute inset-0 p-1">
+                {Array.isArray(tasks) && tasks
+                  .filter(task => task?.startTime?.hasSame(DateTime.fromJSDate(date), 'day'))
+                  .map((task) => {
+                    const position = calculateEventPosition(task);
+                    if (!position) return null;
+
+                    return (
+                      <div
+                        key={task.id}
+                        className="absolute left-1 right-1 p-1 rounded-lg bg-blue-100 text-blue-600 hover:shadow-md transition-shadow cursor-pointer"
+                        style={position}
+                        onClick={() => onEditTask(task)}
+                      >
+                        <div className="flex items-center gap-1">
+                          <Pencil size={16} />
+                          <div className="truncate">
+                            <div className="font-medium text-sm truncate">{task.title}</div>
+                            <div className="text-xs truncate">
+                              {task.startTime?.toFormat('HH:mm')} - {task.startTime?.plus({ minutes: task.duration || 0 }).toFormat('HH:mm')}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           ))}
@@ -246,7 +258,7 @@ const WeeklyView = ({ currentDate, events }) => {
 };
 
 // MonthlyView Component
-const MonthlyView = ({ currentDate, events }) => {
+const MonthlyView: React.FC<ViewProps> = ({ currentDate, tasks, onEditTask }) => {
   const getDaysInMonth = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -256,20 +268,17 @@ const MonthlyView = ({ currentDate, events }) => {
     const days = [];
     const firstDayOfWeek = firstDay.getDay();
     
-    // Get days from previous month to fill first week
     for (let i = firstDayOfWeek; i > 0; i--) {
       const day = new Date(year, month, -i + 1);
       days.push({ date: day, isCurrentMonth: false });
     }
     
-    // Get days of current month
     for (let i = 1; i <= lastDay.getDate(); i++) {
       const day = new Date(year, month, i);
       days.push({ date: day, isCurrentMonth: true });
     }
     
-    // Get days from next month to fill last week
-    const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+    const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       const day = new Date(year, month + 1, i);
       days.push({ date: day, isCurrentMonth: false });
@@ -278,38 +287,20 @@ const MonthlyView = ({ currentDate, events }) => {
     return days;
   };
 
-  const isToday = (date) => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear();
-  };
-
-  const getEventsForDate = (date) => {
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === date.getDate() &&
-        eventDate.getMonth() === date.getMonth() &&
-        eventDate.getFullYear() === date.getFullYear();
-    });
+  const getTasksForDate = (date: Date) => {
+    return tasks.filter(task => 
+      task.startTime?.hasSame(DateTime.fromJSDate(date), 'day')
+    );
   };
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const days = getDaysInMonth();
-  
-  const formatMonthYear = (date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      year: 'numeric'
-    }).format(date);
-  };
 
   return (
     <div className="h-[calc(100vh-12rem)] bg-white rounded-lg border">
-      <div className="px-4 py-2 border-b">
-        <h3 className="font-medium text-gray-600">{formatMonthYear(currentDate)}</h3>
+       <div className="px-4 py-2 border-b">
+        <h3 className="font-medium text-center">{formatMonthYear(currentDate)}</h3>
       </div>
-      
       <div className="grid grid-cols-7 border-b">
         {daysOfWeek.map((day) => (
           <div key={day} className="py-4 text-sm font-medium text-center border-r last:border-r-0">
@@ -318,13 +309,13 @@ const MonthlyView = ({ currentDate, events }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 grid-rows-6 h-[calc(100%-3rem)]">
+      <div className="grid grid-cols-7 grid-rows-6 h-[calc(100%-6rem)]">
         {days.map(({ date, isCurrentMonth }, index) => (
           <div
             key={index}
             className={`border-r border-b last:border-r-0 p-2 ${
               isCurrentMonth ? 'bg-white' : 'bg-gray-50'
-            }`}
+            } ${isToday(date) ? 'bg-blue-50' : ''}`}
           >
             <div className={`text-sm mb-1 ${
               isToday(date) 
@@ -335,20 +326,15 @@ const MonthlyView = ({ currentDate, events }) => {
             </div>
 
             <div className="space-y-1">
-              {getEventsForDate(date).slice(0, 3).map((event) => (
+              {getTasksForDate(date).slice(0, 3).map((task) => (
                 <div
-                  key={event.id}
-                  className={`${event.color} text-xs p-1 rounded truncate`}
+                  key={task.id}
+                  className="bg-blue-100 text-blue-600 text-xs p-1 rounded truncate cursor-pointer"
+                  onClick={() => onEditTask(task)}
                 >
-                  {event.title}
+                  {task.title}
                 </div>
               ))}
-              {getEventsForDate(date).length > 3 && (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <MoreHorizontal size={12} />
-                  <span>{getEventsForDate(date).length - 3} more</span>
-                </div>
-              )}
             </div>
           </div>
         ))}
@@ -358,46 +344,11 @@ const MonthlyView = ({ currentDate, events }) => {
 };
 
 // Main Calendar Component
-const CalendarComponent = () => {
+const TaskCalendar: React.FC<CalendarProps> = ({ tasks, onEditTask }) => {
   const [view, setView] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "Update Portfolio",
-      date: "2024-12-04",
-      start: "09:00",
-      end: "10:30",
-      type: "task",
-      color: "bg-blue-100 text-blue-600",
-      icon: <Pencil size={16}/>,
-      description: "Work on personal website and portfolio projects"
-    },
-    {
-      id: 2,
-      title: "Morning Meditation",
-      date: "2024-12-04",
-      start: "07:00",
-      end: "07:30",
-      type: "habit",
-      color: "bg-purple-100 text-purple-600",
-      icon: <Brain size={16} />,
-      description: "Daily mindfulness practice"
-    },
-    {
-      id: 3,
-      title: "Evening Walk",
-      date: "2024-12-15",
-      start: "18:00",
-      end: "18:30",
-      type: "selfcare",
-      color: "bg-rose-100 text-rose-600",
-      icon: <Heart size={16} />,
-      description: "30-minute walk around the neighborhood"
-    }
-  ]);
 
-  const navigateDate = (direction) => {
+  const navigateDate = (direction: number) => {
     const newDate = new Date(currentDate);
     if (view === 'day') {
       newDate.setDate(newDate.getDate() + direction);
@@ -412,20 +363,19 @@ const CalendarComponent = () => {
   const renderView = () => {
     switch(view) {
       case 'day':
-        return <DailyView currentDate={currentDate} events={events} />;
+        return <DailyView currentDate={currentDate} tasks={tasks} onEditTask={onEditTask} />;
       case 'week':
-        return <WeeklyView currentDate={currentDate} events={events} />;
+        return <WeeklyView currentDate={currentDate} tasks={tasks} onEditTask={onEditTask} />;
       case 'month':
-        return <MonthlyView currentDate={currentDate} events={events} />;
+        return <MonthlyView currentDate={currentDate} tasks={tasks} onEditTask={onEditTask} />;
       default:
-        return <WeeklyView currentDate={currentDate} events={events} />;
+        return <WeeklyView currentDate={currentDate} tasks={tasks} onEditTask={onEditTask} />;
     }
   };
 
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Calendar Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">Calendar</h1>
@@ -478,19 +428,13 @@ const CalendarComponent = () => {
                 <ChevronRight size={20} />
               </button>
             </div>
-
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              <Plus size={20} />
-              Add Event
-            </button>
           </div>
         </div>
 
-        {/* Calendar Content */}
         {renderView()}
       </div>
     </div>
   );
 };
 
-export default CalendarComponent;
+export default TaskCalendar;
