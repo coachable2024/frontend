@@ -155,7 +155,7 @@
 
 
 // services/mock/mockGoal.ts
-import { Goal, GoalStatus, GoalCategory } from '@/types/goalsType';
+import { Goal, GoalCategory } from '@/types/goalsType';
 import { Task } from '@/types/tasksType';
 import { mockTaskService } from './mockTasks';
 
@@ -164,36 +164,28 @@ const mockGoals: Goal[] = [
   {
     id: '1',
     title: 'Complete Project Milestone',
-    motivation: 'Deliver key features to customers',
-    status: 'in-progress' as GoalStatus,
+    description: 'Deliver key features to customers',
     category: 'career' as GoalCategory,
     relatedTasks: [],
     targetDate: new Date('2024-06-30'),
     createdAt: new Date(),
     updatedAt: new Date(),
-    reward: 'Team celebration',
-    metrics: {
-      target: 100,
-      current: 45,
-      unit: 'percent'
-    }
+    startDate: new Date(),
+    completedDate: new Date(),
+    reward: 'Team celebration'
   },
   {
     id: '2',
     title: 'Improve Fitness Level',
-    motivation: 'Better health and energy',
-    status: 'not-started' as GoalStatus,
+    description: 'Better health and energy',
     category: 'health' as GoalCategory,
     relatedTasks: [],
     targetDate: new Date('2024-12-31'),
     createdAt: new Date(),
     updatedAt: new Date(),
-    reward: 'New running shoes',
-    metrics: {
-      target: 30,
-      current: 0,
-      unit: 'workouts'
-    }
+    startDate: new Date(),
+    completedDate: new Date(),
+    reward: 'New running shoes'
   }
 ];
 
@@ -283,12 +275,11 @@ export const mockGoalService = {
     return { ...mockGoals[goalIndex] };
   },
 
-  async updateGoalStatus(id: string, status: GoalStatus): Promise<Goal> {
+  async updateGoalStatus(id: string): Promise<Goal> {
     await delay(500);
     const goalIndex = mockGoals.findIndex(g => g.id === id);
     if (goalIndex === -1) throw new Error('Goal not found');
 
-    mockGoals[goalIndex].status = status;
     mockGoals[goalIndex].updatedAt = new Date();
     return { ...mockGoals[goalIndex] };
   }
