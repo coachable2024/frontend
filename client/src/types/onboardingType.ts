@@ -1,14 +1,3 @@
-export interface OnboardingState {
-  currentStep: number;
-  selectedCoach: Coach | null;
-  selectedGoalType?: string;
-  initialGoal?: {
-    title: string;
-    description: string;
-    targetDate: Date | null;
-  };
-}
-
 export interface Coach {
   id: string;
   name: string;
@@ -17,4 +6,39 @@ export interface Coach {
   avatarUrl: string;
   profileImage: string;
   description: string;
-} 
+}
+
+export interface GoalData {
+  main: string;
+  specific: string;
+  measurable: string;
+  achievable: string;
+  relevant: string;
+  timebound: string;
+  tasks?: {
+    category: string;
+    items: Array<{
+      title: string;
+      timeframe: string;
+      status: string;
+    }>;
+  }[];
+}
+
+export interface HabitData {
+  habits: Array<{
+    activity: string;
+    duration: string;
+  }>;
+  selfCare: Array<{
+    name: string;
+    frequency: string;
+  }>;
+}
+
+export interface OnboardingState {
+  currentStep: number;
+  selectedCoach: Coach | null;
+  goalData: GoalData | null;
+  habitsData: HabitData | null;
+}
