@@ -1,8 +1,8 @@
 Our project uses React/Next.js framework:
 
-`cp env.local.example .env.local` - set up environment variables
-
 `cd client`- Changes directory to the client folder containing frontend code
+
+`cp env.local.example .env.local` - set up environment variables
 
 `npm install` - Installs project dependencies listed in package.json
 
