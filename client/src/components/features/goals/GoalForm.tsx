@@ -46,7 +46,7 @@ export function GoalForm({ initialGoal, onSubmit, onCancel }: GoalFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Motivation</label>
+        <label className="block text-sm font-medium text-gray-700">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -58,7 +58,7 @@ export function GoalForm({ initialGoal, onSubmit, onCancel }: GoalFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700">Category</label>
           <select
             value={formData.category}
@@ -72,7 +72,7 @@ export function GoalForm({ initialGoal, onSubmit, onCancel }: GoalFormProps) {
             <option value="relationship">Relationship</option>
             <option value="personal">Personal</option>
           </select>
-        </div>      
+        </div>       */}
 
       <div>
         <label className="block text-sm font-medium text-gray-700">Target Date</label>

@@ -50,6 +50,12 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        backgroundImage: {
+          'pattern-dots': `radial-gradient(circle at center, rgb(209 213 219) 1px, transparent 1px)`,
+        },
+        backgroundSize: {
+          'dots': '4px 4px',
+        },  
       },
       borderRadius: {
         lg: "var(--radius)",

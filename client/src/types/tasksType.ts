@@ -9,7 +9,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: Date;
+  dueDate?: Date;
   priority: TaskPriority;
   status: TaskStatus;
   relatedGoal?: Goal; // changed to one-to-one
@@ -17,7 +17,7 @@ export interface Task {
   duration?: number; // unit: minute
   createdAt: Date;
   updatedAt: Date;
-  startTime: DateTime;
+  startTime?: DateTime;
 }
 
 // reference a goal
