@@ -3,25 +3,35 @@ import { Goal } from "./goalsType";
 
 export type HabitFrequency = 'daily' | 'weekly';
 export type HabitStatus = 'active' | 'paused' | 'archived';
-export type SingleUnitStatus = 'completed' | 'missed'; // 'off day' has no TimeSlot
+export type SingleUnitStatus = 'completed' | 'missed';
 
 export interface WeeklySchedule {
   weekStartDate: DateTime;
-  plannedDays: number[]; // Array of days (0-6 for Sun-Sat)
+  plannedDays: number[];
+}
+
+export interface HabitProgress {
+  completedDates: DateTime[];
+  targetCompletionCount: number;
+  actualCompletionCount: number;
+  lastCompleted: DateTime;
 }
 
 export interface HabitSchedule {
   frequency: HabitFrequency;
-  preferredTime?: DateTime; // Default time if no specific time slot is set
-  weeklySchedules?: WeeklySchedule[]; // For flexible weekly planning
+  timesPerPeriod: number;
+  defaultDuration: number;
+  preferredTime?: DateTime;
+  timeSlots: any[];
+  weeklySchedules?: WeeklySchedule[];
 }
 
 export interface Habit {
   id: string;
   title: string;
   description: string;
-  duration: number; // in minutes 
   schedule: HabitSchedule;
+  progress: HabitProgress;
   completedDates?: DateTime[];
   scheduledDates?: DateTime[];
   status: HabitStatus;

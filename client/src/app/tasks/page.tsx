@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState } from 'react';
 import { Task, TaskStatus } from '@/types/tasksType';
 import { TaskCard } from '@/components/features/task/TaskCard';
@@ -11,11 +12,9 @@ import {
   CheckSquare
 } from 'lucide-react';
 
-interface TasksPageProps {
-  isMainExpanded?: boolean;  
-}
-
-const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
+// Define the component as a proper Next.js page component
+export default function Page() {
+  const [isMainExpanded, setIsMainExpanded] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -41,9 +40,7 @@ const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
 
   const handleAddTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      console.log('Creating task:', taskData);
       const newTask = await taskService.createTask(taskData);
-      console.log('Response:', newTask);
       setTasks([...tasks, newTask]);
       setIsFormOpen(false);
     } catch (error) {
@@ -103,17 +100,17 @@ const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center">
             <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">              <CheckSquare className="text-blue-600" /> {/* Added icon */}
-                Tasks</h1>
-
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                <CheckSquare className="text-blue-600" />
+                Tasks
+              </h1>
               <p className="text-gray-500 mt-1">
                 Manage and track your progress
               </p>
             </div>
             <button
               onClick={() => setIsFormOpen(true)}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg
-                hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm"
             >
               <PlusCircle className="w-5 h-5 mr-2" />
               Add Task
@@ -122,36 +119,34 @@ const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
 
           {/* Filters Section */}
           <div className="mt-6">
-              <div className="mt-4 flex flex-wrap gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1 min-w-[200px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as TaskStatus | 'all')}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 
-                      focus:ring-blue-500 bg-white"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="todo">To Do</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-
-                <div className="flex-1 min-w-[200px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Task Type</label>
-                  <select
-                    value={relationFilter}
-                    onChange={(e) => setRelationFilter(e.target.value as 'all' | 'related' | 'independent')}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 
-                      focus:ring-blue-500 bg-white"
-                  >
-                    <option value="all">All Tasks</option>
-                    <option value="related">Goals Related</option>
-                    <option value="independent">Independent Tasks</option>
-                  </select>
-                </div>
+            <div className="mt-4 flex flex-wrap gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as TaskStatus | 'all')}
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="todo">To Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
               </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Task Type</label>
+                <select
+                  value={relationFilter}
+                  onChange={(e) => setRelationFilter(e.target.value as 'all' | 'related' | 'independent')}
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
+                >
+                  <option value="all">All Tasks</option>
+                  <option value="related">Goals Related</option>
+                  <option value="independent">Independent Tasks</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -179,8 +174,7 @@ const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
             <p className="text-gray-500 mt-2">Get started by creating your first task</p>
             <button
               onClick={() => setIsFormOpen(true)}
-              className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg
-                hover:bg-blue-700 transition-colors duration-200"
+              className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
               <PlusCircle className="w-5 h-5 mr-2" />
               Add Task
@@ -210,5 +204,3 @@ const TasksPage = ({ isMainExpanded = true }: TasksPageProps) => {
     </div>
   );
 }
-
-export default TasksPage;

@@ -84,7 +84,22 @@ const GoalCard: React.FC<GoalCardProps> = ({
         </div>
 
         <p className="text-gray-600 mb-4">
-          Target Date: {goal.targetDate ? format(new Date(goal.targetDate), 'MMM d, yyyy') : 'No date set'}
+          Target Date: {
+            (() => {
+              try {
+                // Handle both string and Date objects
+                const dateValue = typeof goal.targetDate === 'string' 
+                  ? goal.targetDate 
+                  : goal.targetDate?.toISOString();
+                return dateValue 
+                  ? format(new Date(dateValue), 'MMM d, yyyy') 
+                  : 'No date set';
+              } catch (error) {
+                console.error('Date formatting error:', error);
+                return 'Invalid date';
+              }
+            })()
+          }
         </p>
 
         {/* Tasks Section */}
