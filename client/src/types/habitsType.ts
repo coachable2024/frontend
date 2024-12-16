@@ -31,7 +31,6 @@ export interface Habit {
   title: string;
   description: string;
   schedule: HabitSchedule;
-  progress: HabitProgress;
   completedDates?: DateTime[];
   scheduledDates?: DateTime[];
   status: HabitStatus;
