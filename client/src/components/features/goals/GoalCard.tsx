@@ -148,7 +148,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
                       {task.duration && (
                         <div className="text-sm text-gray-500 flex items-center gap-1">
                           <Clock size={14} />
-                          {formatDuration(task.duration)}
+                          {formatDuration(task.duration * 60)}
                         </div>
                       )}
                     </div>

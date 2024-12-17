@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Coach } from '../../../types/onboardingType';
 import { Goal, GoalCategory } from '../../../types/goalsType';
+import ReactMarkdown from 'react-markdown';
 
 interface CoachChatStepProps {
   coach: Coach;
@@ -15,51 +16,32 @@ interface Message {
 }
 
 const formatAssistantMessage = (content: string): JSX.Element => {
-  const lines = content.split('\n').filter(line => line.trim());
-  
   return (
-    <div className="space-y-1">
-      {lines.map((line, index) => {
-        // Handle task group titles (lines with numbers followed by asterisks)
-        if (/^\d+\.\s+\*\*.*\*\*$/.test(line.trim())) {
-          return (
-            <div key={index} className="font-bold mt-3 mb-1">
-              {line.replace(/\*\*/g, '')}
-            </div>
-          );
-        }
-        // Handle bullet points
-        else if (line.trim().startsWith('*') || line.trim().startsWith('-')) {
-          const bulletText = line.trim().substring(1).trim();
-          return (
-            <div key={index} className="flex gap-2 ml-2">
-              <span className="text-gray-400">•</span>
-              <span>{bulletText}</span>
-            </div>
-          );
-        }
-        // Handle numbered points
-        else if (/^\d+\./.test(line.trim())) {
-          const numberText = line.trim();
-          return (
-            <div key={index} className="ml-2">
-              {numberText}
-            </div>
-          );
-        }
-        // Handle steps
-        else if (line.toLowerCase().startsWith('step')) {
-          return (
-            <div key={index} className="font-medium">
-              {line}
-            </div>
-          );
-        }
-        // Regular text
-        else {
-          return <div key={index}>{line}</div>;
-        }
-      })}
+    <div className="prose prose-blue max-w-none">
+      <ReactMarkdown
+        components={{
+          // Customize heading styles
+          h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props}/>,
+          h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3" {...props}/>,
+          h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2" {...props}/>,
+          // Customize paragraph styles
+          p: ({node, ...props}) => <p className="mb-2" {...props}/>,
+          // Customize list styles
+          ul: ({node, ...props}) => <ul className="list-disc ml-4 mb-2" {...props}/>,
+          ol: ({node, ...props}) => <ol className="list-decimal ml-4 mb-2" {...props}/>,
+          li: ({node, ...props}) => <li className="mb-1" {...props}/>,
+          // Customize code block styles
+          code: ({node, inline, ...props}) => 
+            inline ? 
+              <code className="bg-gray-100 px-1 rounded" {...props}/> :
+              <code className="block bg-gray-100 p-2 rounded mb-2" {...props}/>,
+          // Customize blockquote styles
+          blockquote: ({node, ...props}) => 
+            <blockquote className="border-l-4 border-gray-300 pl-4 italic" {...props}/>,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 };
@@ -196,7 +178,7 @@ const CoachChatStep: React.FC<CoachChatStepProps> = ({ coach, onNext, onBack, on
               <svg 
                 className="w-4 h-4" 
                 fill="none" 
-                strokeCurrentColor 
+                // strokeCurrentColor 
                 viewBox="0 0 24 24"
               >
                 <path 

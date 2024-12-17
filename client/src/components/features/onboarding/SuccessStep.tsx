@@ -16,12 +16,12 @@ const SuccessStep: React.FC = () => {
         Your AI coach is ready to help you achieve your goals. Let's get started on your journey!
       </p>
       <button
-        onClick={() => window.location.href = '/dashboard'}
+        onClick={() => window.location.href = '/goals'}
         className="px-8 py-3 bg-blue-600 text-white rounded-lg
                  hover:bg-blue-700 transition-colors duration-200
                  font-semibold text-lg"
       >
-        Go to Dashboard
+        Set Up Goals
       </button>
     </motion.div>
   );

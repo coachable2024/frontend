@@ -20,6 +20,8 @@ export interface GoalData {
     items: Array<{
       title: string;
       timeframe: string;
+      start_date: string;
+      end_date: string;
       status: string;
     }>;
   }[];
