@@ -85,37 +85,37 @@ const Onboarding: React.FC = () => {
           />
         );
       
+      // case 3:
+      //   return (
+      //     <GoalSettingStep
+      //       onNext={nextStep}
+      //       onBack={previousStep}
+      //       selectedCoach={onboardingState.selectedCoach}
+      //       onGoalSave={handleGoalSave}
+      //     />
+      //   );
+      
+      // case 4:
+      //   return (
+      //     <HabitsCollectionStep
+      //       onNext={nextStep}
+      //       onBack={previousStep}
+      //       selectedCoach={onboardingState.selectedCoach}
+      //       onHabitsSave={handleHabitsSave}
+      //     />
+      //   );
+      
+      // case 5:
+      //   return (
+      //     <SchedulePreviewStep
+      //       onNext={nextStep}
+      //       onBack={previousStep}
+      //       selectedCoach={onboardingState.selectedCoach}
+      //       onScheduleSave={handleScheduleSave}
+      //     />
+      //   );
+      
       case 3:
-        return (
-          <GoalSettingStep
-            onNext={nextStep}
-            onBack={previousStep}
-            selectedCoach={onboardingState.selectedCoach}
-            onGoalSave={handleGoalSave}
-          />
-        );
-      
-      case 4:
-        return (
-          <HabitsCollectionStep
-            onNext={nextStep}
-            onBack={previousStep}
-            selectedCoach={onboardingState.selectedCoach}
-            onHabitsSave={handleHabitsSave}
-          />
-        );
-      
-      case 5:
-        return (
-          <SchedulePreviewStep
-            onNext={nextStep}
-            onBack={previousStep}
-            selectedCoach={onboardingState.selectedCoach}
-            onScheduleSave={handleScheduleSave}
-          />
-        );
-      
-      case 6:
         return <SuccessStep />;
       
       default:

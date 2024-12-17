@@ -1,10 +1,16 @@
 import React from 'react';
-import { SmartGoal } from '../../types/goals';
+import { SmartGoal } from '../../../types/goals';
+// import { Goal } from '../../../types/goalsType';
 
 interface GoalSettingPanelProps {
   currentGoal: SmartGoal | null;
   onConfirmGoal: (goal: SmartGoal) => void;
 }
+
+// interface GoalSettingPanelProps {
+//   currentGoal: Goal | null;
+//   onConfirmGoal: (goal: Goal) => void;
+// }
 
 const GoalSettingPanel: React.FC<GoalSettingPanelProps> = ({ currentGoal, onConfirmGoal }) => {
   if (!currentGoal) {
@@ -26,17 +32,17 @@ const GoalSettingPanel: React.FC<GoalSettingPanelProps> = ({ currentGoal, onConf
       <div className="space-y-4">
         <div>
           <h4 className="font-medium text-gray-700">Goal Statement</h4>
-          <p className="text-sm text-gray-600">{currentGoal.statement}</p>
+          <p className="text-sm text-gray-600">{currentGoal.title}</p>
         </div>
 
         <div>
           <h4 className="font-medium text-gray-700">Specific</h4>
-          <p className="text-sm text-gray-600">{currentGoal.specific}</p>
+          <p className="text-sm text-gray-600">{currentGoal.description}</p>
         </div>
 
         <div>
           <h4 className="font-medium text-gray-700">Measurable</h4>
-          <p className="text-sm text-gray-600">{currentGoal.measurable}</p>
+          <p className="text-sm text-gray-600">{currentGoal.duration * 60}</p>
         </div>
 
         <div>
@@ -51,10 +57,10 @@ const GoalSettingPanel: React.FC<GoalSettingPanelProps> = ({ currentGoal, onConf
 
         <div>
           <h4 className="font-medium text-gray-700">Time-bound</h4>
-          <p className="text-sm text-gray-600">{currentGoal.timeBound}</p>
+          <p className="text-sm text-gray-600">{currentGoal.timeBound * 60}</p>
         </div>
 
-        {currentGoal.status === 'draft' && (
+        {currentGoal.SettingStatus === 'draft' && (
           <button
             onClick={() => onConfirmGoal(currentGoal)}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -63,7 +69,7 @@ const GoalSettingPanel: React.FC<GoalSettingPanelProps> = ({ currentGoal, onConf
           </button>
         )}
 
-        {currentGoal.tasks.length > 0 && (
+        {currentGoal.relatedTasks.length > 0 && (
           <div>
             <h4 className="font-medium text-gray-700 mb-2">Tasks</h4>
             <ul className="space-y-2">

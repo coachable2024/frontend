@@ -23,8 +23,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
   const [editingGoal, setEditingGoal] = useState<Goal | undefined>(undefined);
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null); // Add this line to define the state
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false); // Add this line to define the state
-  const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isTaskEditModalOpen, setIsTaskEditModalOpen] = useState(false);
 
@@ -143,10 +141,6 @@ const GoalsPage: React.FC<GoalsPageProps> = ({ isMainExpanded = true }) => {
     setIsTaskModalOpen(true);
 
   };
-
-
-
-
 
   const handleAddTaskToGoal = async (tasks: Task[], mode: 'existing' | 'new') => {
     if (!selectedGoalId) return;

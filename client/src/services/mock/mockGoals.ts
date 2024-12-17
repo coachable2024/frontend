@@ -10,26 +10,24 @@ const mockGoals: Goal[] = [
     title: 'Complete Project Milestone',
     description: 'Deliver key features to customers',
     category: 'career' as GoalCategory,
-    relatedTasks: [],
+    relatedTasks: ['1'],
     targetDate: new Date('2024-06-30'),
     createdAt: new Date(),
     updatedAt: new Date(),
     startDate: new Date(),
     completedDate: new Date(),
-    reward: 'Team celebration'
   },
   {
     id: '2',
     title: 'Improve Fitness Level',
     description: 'Better health and energy',
     category: 'health' as GoalCategory,
-    relatedTasks: [],
+    relatedTasks: ['2'],
     targetDate: new Date('2024-12-31'),
     createdAt: new Date(),
     updatedAt: new Date(),
     startDate: new Date(),
     completedDate: new Date(),
-    reward: 'New running shoes'
   }
 ];
 
